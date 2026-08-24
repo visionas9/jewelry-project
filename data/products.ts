@@ -1,9 +1,22 @@
+export type Currency = "TRY";
+
+export type Category = "bileklik";
+
+export type Stone =
+  | "kuvars"
+  | "inci"
+  | "lapis"
+  | "rodonit"
+  | "akik"
+  | "turmalin";
+
 export type Data = {
   name: string;
   slug: string;
   price: number;
-  currency: string;
-  category: string;
+  currency: Currency;
+  category: Category;
+  stone: Stone;
   description: string;
   material: string;
   size: string;
@@ -17,7 +30,8 @@ export const data: Data[] = [
     slug: "rose-quartz",
     price: 1000,
     currency: "TRY",
-    category: "Bilezik / Doğal Taş Bileklik",
+    category: "bileklik",
+    stone: "kuvars",
     description:
       "Pembe kuvarsın yumuşak pembe tonlarını gold detaylarla buluşturan zarif ve romantik bir tasarım. Günlük kullanımda tek başına veya farklı bilekliklerle kombinlenebilir.",
     material:
@@ -31,7 +45,8 @@ export const data: Data[] = [
     slug: "pearl-leaf",
     price: 1000,
     currency: "TRY",
-    category: "Bilezik",
+    category: "bileklik",
+    stone: "inci",
     description:
       "Doğal taş, inci ve yaprak figürünün bir araya geldiği özgün ve feminen bir tasarım. Organik formları ve gold görünümüyle zarif kombinleri tamamlar.",
     material:
@@ -49,7 +64,8 @@ export const data: Data[] = [
     slug: "lapis-blue",
     price: 1000,
     currency: "TRY",
-    category: "Bilezik / Doğal Taş Bileklik",
+    category: "bileklik",
+    stone: "lapis",
     description:
       "Lapis lazulinin yoğun mavi tonlarını gold detaylarla tamamlayan dikkat çekici bir tasarım. Güçlü renkleri sade kombinlere belirgin bir dokunuş katar.",
     material:
@@ -67,7 +83,8 @@ export const data: Data[] = [
     slug: "rhodonite-rose",
     price: 1000,
     currency: "TRY",
-    category: "Bilezik / Doğal Taş Bileklik",
+    category: "bileklik",
+    stone: "rodonit",
     description:
       "Pembe kuvarsın açık tonlarıyla rodonitin desenli görünümünü bir araya getiren doğal taş bileklik. Vintage gold detayları tasarıma bohem bir karakter kazandırır.",
     material:
@@ -85,7 +102,8 @@ export const data: Data[] = [
     slug: "green-sun",
     price: 1000,
     currency: "TRY",
-    category: "Bilezik / Doğal Taş Bileklik",
+    category: "bileklik",
+    stone: "akik",
     description:
       "Canlı yeşil doğal taşların açık renk detaylar ve gold güneş figürüyle buluştuğu enerjik bir tasarım. Özellikle yaz kombinlerine canlı ve özgün bir görünüm kazandırır.",
     material:
@@ -103,7 +121,8 @@ export const data: Data[] = [
     slug: "luna-turmalin",
     price: 1000,
     currency: "TRY",
-    category: "Bilezik / Doğal Taş Bileklik",
+    category: "bileklik",
+    stone: "turmalin",
     description:
       "Pembe, yeşil ve koyu tonlardaki doğal taşların gold hilal figürüyle tamamlandığı mistik ve feminen bir tasarım. Doğal renk geçişleri her bilekliğe özgün bir görünüm kazandırır.",
     material:
