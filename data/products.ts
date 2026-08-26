@@ -1,30 +1,6 @@
-export type Currency = "TRY";
+import type { Product } from "@/types/product";
 
-export type Category = "bileklik";
-
-export type Stone =
-  | "kuvars"
-  | "inci"
-  | "lapis"
-  | "rodonit"
-  | "akik"
-  | "turmalin";
-
-export type Data = {
-  name: string;
-  slug: string;
-  price: number;
-  currency: Currency;
-  category: Category;
-  stone: Stone;
-  description: string;
-  material: string;
-  size: string;
-  stock: number;
-  images: string[];
-};
-
-export const data: Data[] = [
+export const products: Product[] = [
   {
     name: "Rose Quartz Pembe Kuvars Doğal Taş Bileklik",
     slug: "rose-quartz",
