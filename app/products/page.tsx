@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { products } from "@/data/products";
+import { ProductCard } from "@/components/products/ProductCard";
 
 export const metadata: Metadata = {
   title: "Bileklikler",
@@ -11,9 +13,15 @@ export default function ProductsPage() {
       <h1 className="font-display text-4xl font-medium md:text-5xl">
         Bileklikler
       </h1>
-      <p className="mt-4 max-w-md text-muted">
-        Ürün listesi Faz 3&apos;te buraya gelecek.
-      </p>
+      <p className="mt-3 text-sm text-muted">{products.length} ürün</p>
+
+      <ul className="mt-10 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:mt-14 lg:grid-cols-3">
+        {products.map((p) => (
+          <li key={p.slug}>
+            <ProductCard product={p} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
