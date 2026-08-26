@@ -4,36 +4,40 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-// "use client" lives here and nowhere else on the products page.
-// Only reason: the arrows need a DOM ref to scroll the strip.
-// The card's name/price stay server-rendered.
+// "use client" lives here and nowhere else on the product pages.
+// Only reason: the arrows and dots need a DOM ref to scroll and measure the strip.
+// Swiping itself is CSS scroll-snap and works with JS disabled.
 export function ProductGallery({
   images,
   name,
   href,
+  showDots = false,
+  priority = false,
 }: {
   images: string[];
   name: string;
-  href: string;
+  /** Wraps each slide in a link. Omit on the detail page — we're already there. */
+  href?: string;
+  showDots?: boolean;
+  priority?: boolean;
 }) {
   const stripRef = useRef<HTMLDivElement>(null);
-  const [atStart, setAtStart] = useState(true);
-  const [atEnd, setAtEnd] = useState(false);
+  const [index, setIndex] = useState(0);
 
   const hasMany = images.length > 1;
+  const atStart = index === 0;
+  const atEnd = index === images.length - 1;
 
-  function scrollByOne(direction: -1 | 1) {
+  function goTo(next: number) {
     const strip = stripRef.current;
     if (!strip) return;
-    strip.scrollBy({ left: direction * strip.clientWidth, behavior: "smooth" });
+    strip.scrollTo({ left: next * strip.clientWidth, behavior: "smooth" });
   }
 
   function handleScroll() {
     const strip = stripRef.current;
     if (!strip) return;
-    const max = strip.scrollWidth - strip.clientWidth;
-    setAtStart(strip.scrollLeft <= 1);
-    setAtEnd(strip.scrollLeft >= max - 1);
+    setIndex(Math.round(strip.scrollLeft / strip.clientWidth));
   }
 
   const arrowBase = [
@@ -45,56 +49,89 @@ export function ProductGallery({
   ].join(" ");
 
   return (
-    <div className="relative">
-      <div
-        ref={stripRef}
-        onScroll={hasMany ? handleScroll : undefined}
-        className={[
-          "flex snap-x snap-mandatory rounded-lg bg-sand",
-          "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-          hasMany ? "overflow-x-auto" : "overflow-x-hidden",
-        ].join(" ")}
-      >
-        {images.map((src, i) => (
-          <Link
-            key={src}
-            href={href}
-            aria-label={name}
-            tabIndex={i === 0 ? 0 : -1}
-            className="relative aspect-[4/5] w-full shrink-0 snap-center"
-          >
-            <Image
-              src={src}
-              alt={i === 0 ? name : ""}
-              fill
-              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-            />
-          </Link>
-        ))}
+    <div>
+      <div className="relative">
+        <div
+          ref={stripRef}
+          onScroll={hasMany ? handleScroll : undefined}
+          className={[
+            "flex snap-x snap-mandatory rounded-lg bg-sand",
+            "[-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+            hasMany ? "overflow-x-auto" : "overflow-x-hidden",
+          ].join(" ")}
+        >
+          {images.map((src, i) => {
+            const slide = (
+              <Image
+                src={src}
+                alt={i === 0 ? name : ""}
+                fill
+                priority={priority && i === 0}
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover"
+              />
+            );
+            const slideClass =
+              "relative aspect-[4/5] w-full shrink-0 snap-center";
+
+            return href ? (
+              <Link
+                key={src}
+                href={href}
+                aria-label={name}
+                tabIndex={i === 0 ? 0 : -1}
+                className={slideClass}
+              >
+                {slide}
+              </Link>
+            ) : (
+              <div key={src} className={slideClass}>
+                {slide}
+              </div>
+            );
+          })}
+        </div>
+
+        {hasMany && (
+          <>
+            <button
+              type="button"
+              onClick={() => goTo(index - 1)}
+              disabled={atStart}
+              aria-label="Önceki fotoğraf"
+              className={`${arrowBase} left-3`}
+            >
+              <Chevron className="-ml-0.5 rotate-180" />
+            </button>
+            <button
+              type="button"
+              onClick={() => goTo(index + 1)}
+              disabled={atEnd}
+              aria-label="Sonraki fotoğraf"
+              className={`${arrowBase} right-3`}
+            >
+              <Chevron className="-mr-0.5" />
+            </button>
+          </>
+        )}
       </div>
 
-      {hasMany && (
-        <>
-          <button
-            type="button"
-            onClick={() => scrollByOne(-1)}
-            disabled={atStart}
-            aria-label="Önceki fotoğraf"
-            className={`${arrowBase} left-3`}
-          >
-            <Chevron className="-ml-0.5 rotate-180" />
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollByOne(1)}
-            disabled={atEnd}
-            aria-label="Sonraki fotoğraf"
-            className={`${arrowBase} right-3`}
-          >
-            <Chevron className="-mr-0.5" />
-          </button>
-        </>
+      {hasMany && showDots && (
+        <div className="mt-4 flex justify-center gap-2">
+          {images.map((src, i) => (
+            <button
+              key={src}
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={`${i + 1}. fotoğrafa git`}
+              aria-current={i === index}
+              className={[
+                "h-1.5 rounded-full transition-all duration-300",
+                i === index ? "w-6 bg-brass" : "w-1.5 bg-line hover:bg-muted",
+              ].join(" ")}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
