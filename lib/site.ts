@@ -7,6 +7,9 @@ export const SITE = {
   tagline: "El yapımı doğal taş bileklikler",
   description:
     "Her biri elde dizilen, doğal taşlardan yapılmış bileklikler. Küçük üretim, gerçek taş, sade tasarım.",
+  // Absolute base for OG/canonical URLs. Social apps can't resolve "/images/x.jpg".
+  // TODO(Alp): set NEXT_PUBLIC_SITE_URL in Vercel once the domain is live.
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
 } as const;
 
 export const NAV_LINKS = [
