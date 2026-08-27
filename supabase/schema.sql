@@ -28,3 +28,21 @@ on products
 for select
 to anon, authenticated
 using (true);
+
+-- Applied by migrations/0001_search_text.sql. Kept here so a rebuild from this
+-- file alone produces the same table.
+create extension if not exists unaccent;
+
+create or replace function tr_normalize(value text)
+returns text
+language sql
+immutable
+strict
+parallel safe
+as $$
+  select unaccent('unaccent', lower(translate(value, 'İı', 'Ii')));
+$$;
+
+alter table products
+  add column search_text text
+  generated always as (tr_normalize(name)) stored;
