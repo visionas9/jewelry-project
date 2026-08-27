@@ -127,7 +127,18 @@ export function ProductFilters() {
   );
 }
 
-// Copy the current params, set or drop one key, and return the new URL.
+// Changes one filter without losing the other. On ?query=inci, clicking Lapis
+// has to end up at ?query=inci&stone=lapis — so read what's in the URL now,
+// change one key, and write the whole thing back.
+//
+// An empty value drops the key, so clearing the search gives /products rather
+// than /products?query=.
+//
+// URLSearchParams also handles encoding. Searching "taş & inci" by hand would
+// put a raw & in the URL and split one param into two broken ones.
+//
+// Returns "?" and not "" when nothing is left: an empty href means "the current
+// URL", so the params would never actually clear.
 function buildHref({
   searchParams,
   key,
