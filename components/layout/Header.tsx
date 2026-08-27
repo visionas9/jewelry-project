@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { CartBadge } from "@/components/cart/CartBadge";
 import { NAV_LINKS, SITE } from "@/lib/site";
 
-// No "use client" on purpose — this renders links and nothing else.
-// It becomes a client component only when it needs state (the cart badge, Phase 5).
+// Still no "use client". The cart badge is its own client island, so the header
+// itself stays a server component and ships no JS of its own.
 export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-cream/85 backdrop-blur-sm">
@@ -20,9 +21,10 @@ export function Header() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="text-muted transition-colors hover:text-ink"
+                  className="inline-flex items-center text-muted transition-colors hover:text-ink"
                 >
                   {link.label}
+                  {link.href === "/cart" ? <CartBadge /> : null}
                 </Link>
               </li>
             ))}
