@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { HomeSearch } from "@/components/search/HomeSearch";
 import { SITE } from "@/lib/site";
 
 export default function HomePage() {
@@ -24,6 +25,16 @@ export default function HomePage() {
             >
               Bileklikleri gör
             </Link>
+
+            {/* Sends you to /products with the term applied — the home page
+                deliberately shows no results of its own, so there is one
+                results page to design and maintain. */}
+            <div className="w-full max-w-sm">
+              <p className="mb-2 text-xs tracking-[0.2em] text-muted uppercase">
+                Ya da ara
+              </p>
+              <HomeSearch />
+            </div>
           </div>
 
           <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-sand md:aspect-[3/4]">
