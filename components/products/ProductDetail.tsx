@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { Product } from "@/types/product";
+import { AddToCart } from "@/components/cart/AddToCart";
+import { formatPrice } from "@/lib/format";
 import { ProductGallery } from "./ProductGallery";
 
 // Server component. Only ProductGallery opts into the client, for its arrows.
@@ -38,7 +40,7 @@ export function ProductDetail({ product }: { product: Product }) {
         </h1>
 
         <p className="mt-4 text-xl tabular-nums">
-          {product.price.toLocaleString("tr-TR")} {product.currency}
+          {formatPrice(product.price, product.currency)}
         </p>
 
         <p className="mt-2 text-sm text-muted">
@@ -48,6 +50,8 @@ export function ProductDetail({ product }: { product: Product }) {
         <p className="mt-6 max-w-prose leading-relaxed text-muted">
           {product.description}
         </p>
+
+        <AddToCart product={product} />
 
         <dl className="mt-8 border-t border-line text-sm">
           {specs.map((spec) => (

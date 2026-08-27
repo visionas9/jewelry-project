@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Product } from "@/types/product";
+import { formatPrice } from "@/lib/format";
 import { ProductGallery } from "./ProductGallery";
 
 // Still a server component. Only the gallery below opts into the client.
@@ -21,7 +22,7 @@ export function ProductCard({ product }: { product: Product }) {
           </Link>
         </h2>
         <p className="shrink-0 text-sm text-muted tabular-nums">
-          {product.price.toLocaleString("tr-TR")} {product.currency}
+          {formatPrice(product.price, product.currency)}
         </p>
       </div>
     </article>
