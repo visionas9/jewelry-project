@@ -8,6 +8,11 @@ import { createJSONStorage, persist } from "zustand/middleware";
 export type CartItem = {
   productId: number;
   quantity: number;
+  // When this line first entered the cart, ISO 8601. Deliberately not refreshed
+  // when the quantity changes: this answers "how long has this been sitting
+  // here", which is what an abandoned-cart reminder needs to know. Captured now
+  // because once real carts exist in people's browsers, it can't be backfilled.
+  addedAt: string;
 };
 
 type CartState = {
@@ -56,7 +61,11 @@ export const useCartStore = create<CartState>()(
           return {
             items: [
               ...state.items,
-              { productId, quantity: clamp(quantity, options?.max) },
+              {
+                productId,
+                quantity: clamp(quantity, options?.max),
+                addedAt: new Date().toISOString(),
+              },
             ],
           };
         }),
@@ -89,7 +98,28 @@ export const useCartStore = create<CartState>()(
     {
       name: STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
-      version: 1,
+      version: 2,
+      // A cart saved before addedAt existed is still sitting in someone's
+      // browser. Without this, those items come back missing the field and
+      // anything reading it gets undefined.
+      migrate: (persisted, version) => {
+        const state = persisted as { items?: CartItem[] } | undefined;
+
+        if (version < 2 && state?.items) {
+          return {
+            ...state,
+            items: state.items.map((item) => ({
+              ...item,
+              // Unknown, so treat it as "just added" rather than inventing a
+              // date. Better to email late than to email about a cart that
+              // looks older than it is.
+              addedAt: item.addedAt ?? new Date().toISOString(),
+            })),
+          };
+        }
+
+        return state;
+      },
     }
   )
 );
