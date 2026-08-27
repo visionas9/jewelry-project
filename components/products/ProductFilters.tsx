@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { SearchField } from "@/components/search/SearchField";
 import { STONES } from "@/lib/stones";
 
 const DEBOUNCE_MS = 300;
@@ -59,59 +60,68 @@ export function ProductFilters() {
   const hasFilters = urlQuery !== "" || activeStone !== null;
 
   return (
-    <div className="mt-8 flex flex-col gap-5">
-      <div className="relative max-w-sm">
-        <label htmlFor="product-search" className="sr-only">
-          Bileklik ara
-        </label>
-        <input
+    <div className="mt-8 flex flex-col gap-3 border-b border-line pb-8 md:mt-10">
+      <div className="mb-2 max-w-sm">
+        <SearchField
           id="product-search"
-          type="search"
+          label="Bileklik ara"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Bileklik ara…"
-          className="w-full rounded-full border border-line bg-cream px-5 py-3 text-sm outline-none transition-colors placeholder:text-muted focus:border-ink"
+          onChange={setQuery}
+          onClear={() => setQuery("")}
+          isPending={isPending}
         />
-        {isPending ? (
-          <span className="absolute top-1/2 right-5 -translate-y-1/2 text-xs text-muted">
-            …
-          </span>
-        ) : null}
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        {STONES.map((stone) => {
-          const isActive = stone.value === activeStone;
-          return (
-            <button
-              key={stone.value}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => setStone(stone.value)}
-              className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-                isActive
-                  ? "border-ink bg-ink text-cream"
-                  : "border-line text-muted hover:border-ink hover:text-ink"
-              }`}
-            >
-              {stone.label}
-            </button>
-          );
-        })}
+      {/* Names what the pills do. Without it a screen reader announces six bare
+          stone names with no clue they're filters. */}
+      <p
+        id="stone-filter-label"
+        className="text-xs tracking-[0.2em] text-muted uppercase"
+      >
+        Taş
+      </p>
 
-        {hasFilters ? (
-          <button
-            type="button"
-            onClick={() =>
-              startTransition(() => {
-                router.replace(pathname, { scroll: false });
-              })
-            }
-            className="ml-1 text-sm text-muted underline underline-offset-4 transition-colors hover:text-ink"
-          >
-            Temizle
-          </button>
-        ) : null}
+      {/* Horizontal scroll rather than wrapping: on a narrow phone six pills
+          wrap to three rows and push the grid off the screen. */}
+      <div className="-mx-5 overflow-x-auto px-5 md:mx-0 md:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          role="group"
+          aria-labelledby="stone-filter-label"
+          className="flex w-max items-center gap-2 md:w-auto md:flex-wrap"
+        >
+          {STONES.map((stone) => {
+            const isActive = stone.value === activeStone;
+            return (
+              <button
+                key={stone.value}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => setStone(stone.value)}
+                className={`shrink-0 rounded-full border px-4 py-2 text-sm transition-colors ${
+                  isActive
+                    ? "border-ink bg-ink text-cream"
+                    : "border-line text-muted hover:border-ink hover:text-ink"
+                }`}
+              >
+                {stone.label}
+              </button>
+            );
+          })}
+
+          {hasFilters ? (
+            <button
+              type="button"
+              onClick={() =>
+                startTransition(() => {
+                  router.replace(pathname, { scroll: false });
+                })
+              }
+              className="shrink-0 pl-2 text-sm text-muted underline underline-offset-4 transition-colors hover:text-ink"
+            >
+              Temizle
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   );
