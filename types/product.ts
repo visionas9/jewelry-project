@@ -1,3 +1,6 @@
+// Mirrors the `products` table in Supabase. The check constraints there keep
+// these unions honest — the database rejects anything not in these lists.
+
 export type Currency = "TRY";
 
 export type Category = "bileklik";
@@ -11,6 +14,7 @@ export type Stone =
   | "turmalin";
 
 export type Product = {
+  id: number;
   name: string;
   slug: string;
   price: number;
@@ -22,4 +26,5 @@ export type Product = {
   size: string;
   stock: number;
   images: string[];
+  createdAt: string;
 };

@@ -1,14 +1,15 @@
 // Next 16: `params` is a Promise — it has to be awaited.
 
+import { Suspense } from "react";
 import { ProductDetail } from "@/components/products/ProductDetail";
-import { products } from "@/data/products";
+import { ProductDetailSkeleton } from "@/components/products/ProductDetailSkeleton";
+import { getProductBySlug, getProductSlugs } from "@/lib/products";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 export async function generateStaticParams() {
-  return products.map((p) => ({
-    slug: p.slug,
-  }));
+  const slugs = await getProductSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 // Google cuts descriptions around 160 characters. Trim on a word boundary
@@ -25,7 +26,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = products.find((p) => p.slug === slug);
+  // Same call the page makes below. It's cached, so this costs one query, not two.
+  const product = await getProductBySlug(slug);
 
   // Runs before the page's notFound(), so an unknown slug has to be handled here too.
   if (!product) {
@@ -54,20 +56,35 @@ export async function generateMetadata({
   };
 }
 
-export default async function ProductDetailPage({
+// Everything that depends on the slug lives here, behind the Suspense boundary
+// below. Cache Components prerenders a shell for slugs that weren't built ahead
+// of time; that shell can't know the slug, so calling notFound() outside a
+// boundary would break it. Inside one, the shell renders the fallback and this
+// resolves at request time instead.
+async function ProductDetailContent({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
 
-  const selectedProduct = products.find((p) => p.slug === slug);
+  const selectedProduct = await getProductBySlug(slug);
 
   if (!selectedProduct) notFound();
 
+  return <ProductDetail product={selectedProduct} />;
+}
+
+export default async function ProductDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   return (
     <section className="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-20">
-      <ProductDetail product={selectedProduct} />
+      <Suspense fallback={<ProductDetailSkeleton />}>
+        <ProductDetailContent params={params} />
+      </Suspense>
     </section>
   );
 }
