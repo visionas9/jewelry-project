@@ -15,7 +15,7 @@ export function CartBadge() {
   return (
     <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-ink px-1.5 py-0.5 text-[0.65rem] leading-none text-cream tabular-nums">
       {count}
-      <span className="sr-only"> ürün sepette</span>
+      <span className="sr-only"> bileklik sepette</span>
     </span>
   );
 }

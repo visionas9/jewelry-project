@@ -12,14 +12,15 @@ export function ProductGallery({
   name,
   href,
   showDots = false,
-  priority = false,
+  preload = false,
 }: {
   images: string[];
   name: string;
   /** Wraps each slide in a link. Omit on the detail page — we're already there. */
   href?: string;
   showDots?: boolean;
-  priority?: boolean;
+  /** Only the first slide gets it, and only where the gallery is the LCP. */
+  preload?: boolean;
 }) {
   const stripRef = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
@@ -66,7 +67,7 @@ export function ProductGallery({
                 src={src}
                 alt={i === 0 ? name : ""}
                 fill
-                priority={priority && i === 0}
+                preload={preload && i === 0}
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover"
               />

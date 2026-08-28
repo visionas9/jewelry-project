@@ -12,10 +12,11 @@ export default function ProductsError({
   return (
     <section className="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-20">
       <h1 className="font-display text-3xl font-medium md:text-4xl">
-        Bileklikler yüklenemedi
+        Bileklikleri getiremedik
       </h1>
       <p className="mt-4 max-w-md text-sm leading-relaxed text-muted">
-        Bağlantıda bir sorun oldu. Tekrar denemek yeterli olabilir.
+        Bağlantıda küçük bir aksilik oldu. Bir kez daha denersen büyük
+        ihtimalle düzelir.
       </p>
 
       <button

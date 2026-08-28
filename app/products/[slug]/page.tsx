@@ -31,11 +31,11 @@ export async function generateMetadata({
 
   // Runs before the page's notFound(), so an unknown slug has to be handled here too.
   if (!product) {
-    return { title: "Ürün bulunamadı" };
+    return { title: "Bileklik bulunamadı" };
   }
 
   const description = truncate(product.description);
-  // The root layout's template turns this into "<name> · Atölye Taş".
+  // The root layout's template turns this into "<name> · ishin denshin".
   const title = product.name;
 
   return {

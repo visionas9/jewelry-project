@@ -10,7 +10,7 @@ import { ProductGridSkeleton } from "@/components/products/ProductGridSkeleton";
 
 export const metadata: Metadata = {
   title: "Bileklikler",
-  description: "El yapımı doğal taş bilekliklerin tamamı.",
+  description: "Elde dizilen doğal taş bilekliklerin hepsi burada.",
 };
 
 // The heading is the same for every visitor, so it stays in the static shell.
@@ -57,22 +57,22 @@ async function ProductResults({
   if (products.length === 0) {
     return isFiltered ? (
       <EmptyState
-        title="Aramana uyan bileklik yok"
+        title="Aradığın gibi bir bileklik çıkmadı"
         body={describeFilters(searchTerm, activeStone)}
         action={
           <Link
             href="/products"
             className="mt-6 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass"
           >
-            Filtreleri temizle
+            Hepsini göster
           </Link>
         }
       />
     ) : (
       // No filters and still nothing — the catalog itself is empty.
       <EmptyState
-        title="Şu anda görüntülenecek bileklik yok"
-        body="Yeni modeller hazırlanıyor. Kısa süre içinde burada olacaklar."
+        title="Vitrin şu an boş"
+        body="Yeni modeller atölyede hazırlanıyor. Çok yakında buradalar."
       />
     );
   }
@@ -80,7 +80,7 @@ async function ProductResults({
   return (
     <>
       <p className="mt-8 text-sm text-muted" aria-live="polite">
-        {products.length} ürün
+        {products.length} bileklik
       </p>
 
       <ul className="mt-6 grid grid-cols-1 gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
@@ -101,7 +101,7 @@ function describeFilters(searchTerm: string, activeStone: Stone | undefined) {
   if (searchTerm) parts.push(`“${searchTerm}”`);
   if (activeStone) parts.push(stoneLabel(activeStone));
 
-  return `${parts.join(" · ")} için sonuç bulunamadı. Başka bir arama deneyebilirsin.`;
+  return `${parts.join(" · ")} için bir şey bulamadık. Başka bir kelime ya da taş denemeye ne dersin?`;
 }
 
 function EmptyState({

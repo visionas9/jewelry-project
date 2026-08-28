@@ -30,7 +30,7 @@ export function HomeSearch() {
       <SearchField
         id="home-search"
         label="Bileklik ara"
-        placeholder="Taş veya model ara…"
+        placeholder="Taş adı ya da model ara…"
         value={query}
         onChange={setQuery}
         onClear={() => setQuery("")}

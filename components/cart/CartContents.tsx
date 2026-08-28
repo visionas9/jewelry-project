@@ -36,15 +36,15 @@ export function CartContents({ products }: { products: Product[] }) {
   if (lines.length === 0) {
     return (
       <div className="mt-10 rounded-sm border border-line bg-sand px-6 py-14 text-center">
-        <p className="font-display text-xl font-medium">Sepetin boş</p>
+        <p className="font-display text-xl font-medium">Sepetin henüz boş</p>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted">
-          Beğendiğin bileklikleri buraya ekleyebilirsin.
+          Beğendiğin bileklikleri buraya ekle, sonra rahat rahat karar ver.
         </p>
         <Link
           href="/products"
           className="mt-6 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass"
         >
-          Bileklikleri gör
+          Bilekliklere göz at
         </Link>
       </div>
     );
@@ -69,7 +69,7 @@ export function CartContents({ products }: { products: Product[] }) {
                 className="flex items-center justify-between gap-4 py-5"
               >
                 <p className="text-sm text-muted">
-                  Bu ürün artık satışta değil.
+                  Bu model artık satışta değil.
                 </p>
                 <button
                   type="button"
@@ -117,7 +117,7 @@ export function CartContents({ products }: { products: Product[] }) {
                 </div>
 
                 <p className="text-xs text-muted">
-                  Adet başına {formatPrice(product.price, product.currency)}
+                  Tanesi {formatPrice(product.price, product.currency)}
                 </p>
 
                 <div className="mt-1 flex items-center gap-3">
@@ -159,7 +159,7 @@ export function CartContents({ products }: { products: Product[] }) {
 
                 {atStockLimit ? (
                   <p className="text-xs text-muted">
-                    Bu modelden stokta {product.stock} adet var.
+                    Bu modelden elimizde {product.stock} tane kaldı.
                   </p>
                 ) : null}
               </div>
@@ -176,7 +176,7 @@ export function CartContents({ products }: { products: Product[] }) {
           </div>
 
           <p className="mt-2 text-xs leading-relaxed text-muted">
-            Kargo ücreti sipariş adımında hesaplanır.
+            Kargo ücreti sipariş adımında hesaplanacak.
           </p>
 
           {/* No checkout yet — orders and the form come next. A button that
@@ -186,7 +186,7 @@ export function CartContents({ products }: { products: Product[] }) {
             disabled
             className="mt-6 w-full rounded-full bg-line px-7 py-3 text-sm tracking-wide text-muted"
           >
-            Sipariş adımı yakında
+            Sipariş adımı çok yakında
           </button>
         </div>
       </aside>

@@ -15,7 +15,7 @@ export async function Footer() {
   return (
     <footer className="mt-24 border-t border-line bg-sand">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-10 text-sm text-muted md:flex-row md:items-center md:justify-between md:px-8">
-        <p className="font-display text-base tracking-[0.15em] text-ink uppercase">
+        <p className="font-display text-base lowercase tracking-[0.02em] text-ink">
           {SITE.name}
         </p>
         <p>{SITE.tagline}</p>
