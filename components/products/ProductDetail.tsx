@@ -21,7 +21,7 @@ export function ProductDetail({ product }: { product: Product }) {
           images={product.images}
           name={product.name}
           showDots
-          priority
+          preload
         />
       </div>
 
@@ -44,7 +44,7 @@ export function ProductDetail({ product }: { product: Product }) {
         </p>
 
         <p className="mt-2 text-sm text-muted">
-          {inStock ? "Stokta var" : "Tükendi"}
+          {inStock ? "Şu an stokta" : "Şimdilik tükendi"}
         </p>
 
         <p className="mt-6 max-w-prose leading-relaxed text-muted">

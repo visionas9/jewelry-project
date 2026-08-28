@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
 
 // Only the id and how many. Never a copy of the product itself — a cart can sit
 // in localStorage for weeks, and a snapshot would keep quoting a price that
@@ -24,7 +24,33 @@ type CartState = {
   clear: () => void;
 };
 
-const STORAGE_KEY = "atolye-tas-cart";
+const STORAGE_KEY = "ishin-denshin-cart";
+const LEGACY_STORAGE_KEY = "atolye-tas-cart";
+
+// Renaming the key is not a migration. `migrate` below only ever sees whatever
+// was stored under the *current* name, so on its own a rename means zustand
+// looks up "ishin-denshin-cart", finds nothing, and silently starts everyone
+// with an empty cart — carts saved under the old name would just be orphaned.
+//
+// So the read falls back to the old key once, copies the value across, and then
+// drops it. Copy before delete, in that order: zustand only writes back when
+// something in the cart changes, and for a visitor who never touches it again
+// that write would never come.
+const cartLocalStorage: StateStorage = {
+  getItem: (name) => {
+    const current = localStorage.getItem(name);
+    if (current !== null) return current;
+
+    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacy === null) return null;
+
+    localStorage.setItem(name, legacy);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+    return legacy;
+  },
+  setItem: (name, value) => localStorage.setItem(name, value),
+  removeItem: (name) => localStorage.removeItem(name),
+};
 
 // Quantities are clamped here rather than in the UI. A store that can hold an
 // impossible value is a store every component has to defend against.
@@ -97,7 +123,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: STORAGE_KEY,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => cartLocalStorage),
       version: 2,
       // A cart saved before addedAt existed is still sitting in someone's
       // browser. Without this, those items come back missing the field and

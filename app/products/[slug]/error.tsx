@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 
-// The parent error.tsx says "Bileklikler yüklenemedi" — plural, written for the
-// list. On a single product that's the wrong sentence, so this one takes over.
+// The parent error.tsx says "Bileklikleri getiremedik" — plural, written for
+// the list. On a single product that's the wrong sentence, so this one takes over.
 export default function ProductDetailError({
   error,
   reset,
@@ -14,11 +14,11 @@ export default function ProductDetailError({
   return (
     <section className="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-20">
       <h1 className="font-display text-3xl font-medium md:text-4xl">
-        Bu bileklik yüklenemedi
+        Bu bilekliği getiremedik
       </h1>
       <p className="mt-4 max-w-md text-sm leading-relaxed text-muted">
-        Ürün bilgileri getirilirken bir sorun oldu. Tekrar denemek yeterli
-        olabilir.
+        Bilgileri getirirken bir aksilik oldu. Bir kez daha denemek çoğu zaman
+        yetiyor.
       </p>
 
       <div className="mt-8 flex flex-wrap items-center gap-3">

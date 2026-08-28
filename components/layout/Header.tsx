@@ -8,9 +8,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-cream/85 backdrop-blur-sm">
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-5 py-4 md:flex-row md:justify-between md:gap-8 md:px-8 md:py-5">
+        {/* The brand is always set lowercase. `lowercase` in the class list
+            keeps it that way even if SITE.name ever arrives capitalised — this
+            used to be `uppercase`, which would have rendered ISHIN DENSHIN. */}
         <Link
           href="/"
-          className="font-display text-2xl leading-none font-medium tracking-[0.15em] uppercase transition-colors hover:text-brass md:text-[1.6rem]"
+          className="font-display text-2xl leading-none font-medium lowercase tracking-[0.02em] transition-colors hover:text-brass md:text-[1.6rem]"
         >
           {SITE.name}
         </Link>

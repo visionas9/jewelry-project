@@ -4,7 +4,7 @@ import { getProducts } from "@/lib/products";
 
 export const metadata: Metadata = {
   title: "Sepet",
-  description: "Sepetindeki bileklikler.",
+  description: "Sepetine eklediğin bileklikler.",
 };
 
 export default async function CartPage() {

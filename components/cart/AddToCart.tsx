@@ -27,7 +27,7 @@ export function AddToCart({ product }: { product: Product }) {
   if (!inStock) {
     return (
       <p className="mt-8 rounded-full border border-line px-7 py-3 text-center text-sm text-muted">
-        Bu model tükendi
+        Bu model şimdilik tükendi
       </p>
     );
   }
@@ -67,7 +67,7 @@ export function AddToCart({ product }: { product: Product }) {
           disabled={!canAdd}
           className="flex-1 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
         >
-          {canAdd ? "Sepete ekle" : "Sepette tamamı var"}
+          {canAdd ? "Sepete ekle" : "Stoktakilerin hepsi sepetinde"}
         </button>
       </div>
 
@@ -78,7 +78,7 @@ export function AddToCart({ product }: { product: Product }) {
           justAdded ? "opacity-100" : "opacity-0"
         }`}
       >
-        Sepete eklendi.
+        Sepete eklendi, iyi seçim.
       </p>
     </div>
   );
