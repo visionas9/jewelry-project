@@ -1,12 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./supabase-env";
 
-if (!url || !anonKey) {
-  throw new Error(
-    "Missing Supabase env vars. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local."
-  );
-}
-
-export const supabase = createClient(url, anonKey);
+// The anonymous client. It carries no session and reads no cookies, and that is
+// the point: product queries run through it, and a client that touched cookies
+// would turn every product page from a cached, shared render into a per-visitor
+// one. Keep it that way.
+//
+// Anything that needs to know who is signed in belongs in supabase-browser.ts
+// or supabase-server.ts instead.
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
