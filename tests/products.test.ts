@@ -61,15 +61,19 @@ describe("reading the catalog without a session", () => {
   });
 });
 
-describe("row level security on products", () => {
+describe("write access for an anonymous visitor", () => {
   // No data-layer function to call here: lib/products.ts deliberately exposes
   // no writes. These go through the shipped anon client instead — the same
   // client and the same public key a browser would be holding.
+  //
+  // Two locks stop these, and the tests assert the outcome rather than which
+  // one turned first: anon is never granted the write verbs, and there is no
+  // insert/update/delete policy behind that. 42501 is insufficient_privilege.
 
-  it("refuses an anonymous insert", async () => {
+  it("refuses an insert", async () => {
     const { error } = await supabase.from("products").insert({
       slug: "rls-kacak-urun",
-      name: "Policy tarafından reddedilmeli",
+      name: "Reddedilmeli",
       price: 1,
       category: "bileklik",
       stone: "kuvars",
@@ -78,32 +82,27 @@ describe("row level security on products", () => {
       size: "-",
     });
 
-    // 42501 is insufficient_privilege: the row failed the table's RLS check.
     expect(error?.code).toBe("42501");
     await expect(getProductBySlug("rls-kacak-urun")).resolves.toBeNull();
   });
 
-  it("silently drops an anonymous delete instead of erroring", async () => {
-    // Worth knowing: with RLS on and no delete policy, Postgres does not raise.
-    // The policy decides which rows the statement can even see, and no row
-    // qualifies, so the delete succeeds against nothing. Asserting on the error
-    // alone would pass with the table wide open — assert on the rows.
+  it("refuses a delete and leaves the row in place", async () => {
     const { error } = await supabase
       .from("products")
       .delete()
       .eq("slug", "rose-quartz");
 
-    expect(error).toBeNull();
+    expect(error?.code).toBe("42501");
     await expect(getProductBySlug("rose-quartz")).resolves.not.toBeNull();
   });
 
-  it("silently drops an anonymous update instead of erroring", async () => {
+  it("refuses an update and leaves the price alone", async () => {
     const { error } = await supabase
       .from("products")
       .update({ price: 1 })
       .eq("slug", "rose-quartz");
 
-    expect(error).toBeNull();
+    expect(error?.code).toBe("42501");
     const product = await getProductBySlug("rose-quartz");
     expect(Number(product?.price)).toBe(1000);
   });

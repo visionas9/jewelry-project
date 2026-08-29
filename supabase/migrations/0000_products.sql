@@ -25,6 +25,15 @@ create table products (
 -- place access can actually be enforced.
 alter table products enable row level security;
 
+-- Two separate gates, easily mistaken for one. GRANT decides whether a role
+-- may touch the table at all; RLS then decides which rows it sees. Supabase's
+-- default privileges hand anon no select/insert/update/delete, so without this
+-- line the table is unreadable no matter how permissive the policy is.
+--
+-- Select only: the API has no business writing products, so the write verbs are
+-- never granted and the missing policy below is a second lock on the same door.
+grant select on products to anon, authenticated;
+
 -- The catalog is public. Reads only — there is deliberately no insert,
 -- update or delete policy, so the API cannot modify products.
 create policy "products are publicly readable"
