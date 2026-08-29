@@ -1,5 +1,9 @@
--- Schema for the Supabase project. Run in order, in the SQL Editor.
--- Kept in the repo so the database can be rebuilt from scratch.
+-- The products table and its access policy.
+--
+-- Split out of the old supabase/schema.sql so the database can be rebuilt from
+-- the migrations alone — `supabase db reset` replays this folder in order,
+-- which is what the test suite runs against. Anything applied by hand in the
+-- SQL editor is invisible to the tests, so it has to live here.
 
 create table products (
   id          bigint generated always as identity primary key,
@@ -21,6 +25,15 @@ create table products (
 -- place access can actually be enforced.
 alter table products enable row level security;
 
+-- Two separate gates, easily mistaken for one. GRANT decides whether a role
+-- may touch the table at all; RLS then decides which rows it sees. Supabase's
+-- default privileges hand anon no select/insert/update/delete, so without this
+-- line the table is unreadable no matter how permissive the policy is.
+--
+-- Select only: the API has no business writing products, so the write verbs are
+-- never granted and the missing policy below is a second lock on the same door.
+grant select on products to anon, authenticated;
+
 -- The catalog is public. Reads only — there is deliberately no insert,
 -- update or delete policy, so the API cannot modify products.
 create policy "products are publicly readable"
@@ -28,21 +41,3 @@ on products
 for select
 to anon, authenticated
 using (true);
-
--- Applied by migrations/0001_search_text.sql. Kept here so a rebuild from this
--- file alone produces the same table.
-create extension if not exists unaccent;
-
-create or replace function tr_normalize(value text)
-returns text
-language sql
-immutable
-strict
-parallel safe
-as $$
-  select unaccent('unaccent', lower(translate(value, 'İı', 'Ii')));
-$$;
-
-alter table products
-  add column search_text text
-  generated always as (tr_normalize(name)) stored;

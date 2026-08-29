@@ -12,7 +12,20 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Scratch files written by `supabase start` — bundled vendor code, and
+    // git ignores it too.
+    "supabase/.temp/**",
   ]),
+  // A leading underscore is the usual way to say "this argument exists to match
+  // a signature, not to be used" — the stubs in tests/support rely on it.
+  {
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;
