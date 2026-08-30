@@ -44,5 +44,5 @@ export async function GET(request: NextRequest) {
 
   // Expired, already used, or tampered with. The sign-up page explains it in
   // Turkish and offers a fresh email, which is the only useful next step.
-  redirect("/signup?durum=baglanti-gecersiz");
+  redirect("/signup?error=invalid-link");
 }

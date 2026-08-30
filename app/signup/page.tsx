@@ -37,9 +37,9 @@ async function LinkNotice({
 }: {
   searchParams: PageProps<"/signup">["searchParams"];
 }) {
-  const { durum } = await searchParams;
+  const { error } = await searchParams;
 
-  if (durum !== "baglanti-gecersiz") return null;
+  if (error !== "invalid-link") return null;
 
   return (
     <p
