@@ -36,4 +36,5 @@ export const NAV_LINKS = [
   { href: "/", label: "Ana Sayfa" },
   { href: "/products", label: "Bileklikler" },
   { href: "/cart", label: "Sepet" },
+  { href: "/signup", label: "Kayıt Ol" },
 ] as const;
