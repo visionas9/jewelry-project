@@ -22,6 +22,11 @@ const BY_CODE: Record<string, string> = {
     "Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyebilirsiniz.",
   email_exists: "Bu e-posta adresi zaten kayıtlı. Giriş yapmayı deneyebilirsiniz.",
   weak_password: `Şifreniz çok zayıf. En az ${MIN_PASSWORD_LENGTH} karakter kullanın.`,
+  // Deliberately vague, and deliberately identical whether the address exists
+  // or not. Saying "no such account" would let anyone check which of their
+  // customers shop here, one address at a time.
+  invalid_credentials: "E-posta veya şifre hatalı.",
+  invalid_login_credentials: "E-posta veya şifre hatalı.",
   email_address_invalid: "Geçerli bir e-posta adresi girin.",
   validation_failed: "Girdiğiniz bilgileri kontrol edin.",
   email_not_confirmed:
@@ -42,6 +47,7 @@ const BY_MESSAGE: [RegExp, string][] = [
   [/already registered|already exists/i, BY_CODE.user_already_exists],
   [/password.*(6|at least)|weak/i, BY_CODE.weak_password],
   [/invalid.*email|email.*invalid/i, BY_CODE.email_address_invalid],
+  [/invalid login credentials|invalid credentials/i, BY_CODE.invalid_credentials],
   [/rate limit|too many/i, BY_CODE.over_request_rate_limit],
   [/expired/i, BY_CODE.otp_expired],
 ];
