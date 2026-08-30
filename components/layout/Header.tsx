@@ -1,9 +1,13 @@
 import Link from "next/link";
+import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { CartBadge } from "@/components/cart/CartBadge";
 import { NAV_LINKS, SITE } from "@/lib/site";
 
-// Still no "use client". The cart badge is its own client island, so the header
-// itself stays a server component and ships no JS of its own.
+// Still no "use client". The cart badge and the auth link are each their own
+// client island, so the header itself stays a server component and ships no JS
+// of its own. Reading the session here instead would make every page on the
+// site dynamic — the header is in the root layout, so there is no page it does
+// not touch.
 export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-cream/85 backdrop-blur-sm">
@@ -31,6 +35,13 @@ export function Header() {
                 </Link>
               </li>
             ))}
+
+            {/* Last, and not part of NAV_LINKS: this slot is a sign-in link or
+                an account link depending on who is looking, which is a runtime
+                answer rather than a fixed piece of the menu. */}
+            <li>
+              <HeaderAuth />
+            </li>
           </ul>
         </nav>
       </div>
