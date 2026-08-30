@@ -35,6 +35,20 @@ describe("translating Supabase auth errors", () => {
     expect(message).toContain(String(MIN_PASSWORD_LENGTH));
   });
 
+  it("says the same thing for a wrong password and a missing account", () => {
+    // Sign-in must not become an oracle for which addresses have accounts
+    // here. Supabase returns the same code for both, and the mapping has to
+    // keep it that way.
+    const wrongPassword = turkishAuthError({ code: "invalid_credentials" });
+    const noSuchAccount = turkishAuthError({
+      message: "Invalid login credentials",
+    });
+
+    expect(wrongPassword).toBe(noSuchAccount);
+    expect(wrongPassword).toBe("E-posta veya şifre hatalı.");
+    expect(wrongPassword).not.toMatch(/kayıtlı|bulunamadı/);
+  });
+
   it("never leaks an unrecognised English string", () => {
     const message = turkishAuthError({
       code: "some_code_supabase_added_last_week",
