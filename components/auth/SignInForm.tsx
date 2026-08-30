@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 
 import { signIn, type SignInState } from "@/app/signin/actions";
+import { takePendingEmail } from "@/lib/pending-email";
 
 const FIELD =
   "w-full appearance-none rounded-2xl border border-line bg-cream px-4 py-3 text-base outline-none transition-colors placeholder:text-muted focus:border-ink";
@@ -13,6 +14,19 @@ export function SignInForm() {
     signIn,
     null
   );
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  // Filled after mount rather than through defaultValue. sessionStorage does
+  // not exist on the server, so reading it while rendering would produce one
+  // value in the HTML and another in the browser — the mismatch React throws
+  // away the whole tree over.
+  useEffect(() => {
+    const input = emailRef.current;
+    if (!input || input.value) return;
+
+    const remembered = takePendingEmail();
+    if (remembered) input.value = remembered;
+  }, []);
 
   return (
     <form action={formAction} className="mt-8 flex flex-col gap-5" noValidate>
@@ -29,6 +43,7 @@ export function SignInForm() {
           E-posta
         </label>
         <input
+          ref={emailRef}
           id="email"
           name="email"
           type="email"

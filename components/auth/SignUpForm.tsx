@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
 import {
   resendConfirmation,
@@ -10,6 +10,7 @@ import {
   type SignUpState,
 } from "@/app/signup/actions";
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth-errors";
+import { rememberPendingEmail } from "@/lib/pending-email";
 
 // Lives here rather than beside the action: a "use server" module may only
 // export async functions, so a plain object exported from actions.ts crashes
@@ -113,6 +114,14 @@ function CheckYourInbox({ email }: { email: string }) {
     null
   );
 
+  // Left for the sign-in form to pick up. Confirming on a phone cannot sign
+  // this browser in — the session is a cookie, and cookies do not travel
+  // between devices — so the least this can do is not ask for the address
+  // again on the way back.
+  useEffect(() => {
+    rememberPendingEmail(email);
+  }, [email]);
+
   return (
     <div className="mt-8 flex flex-col gap-5">
       <div className="rounded-2xl border border-line bg-sand/60 px-5 py-6">
@@ -125,7 +134,22 @@ function CheckYourInbox({ email }: { email: string }) {
         <p className="mt-3 text-sm leading-relaxed text-muted">
           E-posta birkaç dakika içinde gelmezse spam klasörünüze bakın.
         </p>
+        {/* The part that is easy to get wrong: the link can be opened on a
+            phone, but doing so signs the phone in and not this browser. Saying
+            so here is cheaper than leaving someone staring at this screen
+            waiting for it to change on its own. */}
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          Bağlantıyı başka bir cihazda açabilirsiniz. Bu durumda doğrulama
+          tamamlandıktan sonra bu tarayıcıdan giriş yapmanız gerekir.
+        </p>
       </div>
+
+      <Link
+        href="/signin"
+        className="rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+      >
+        Doğruladım, giriş yap
+      </Link>
 
       <form action={formAction} className="flex flex-col gap-3">
         <button
