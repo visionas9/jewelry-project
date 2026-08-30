@@ -36,5 +36,9 @@ export const NAV_LINKS = [
   { href: "/", label: "Ana Sayfa" },
   { href: "/products", label: "Bileklikler" },
   { href: "/cart", label: "Sepet" },
-  { href: "/signup", label: "Kayıt Ol" },
+  // No sign-up link here. The header's auth slot is rendered by HeaderAuth
+  // instead, because what belongs there depends on whether anyone is signed in
+  // — and offering "Kayıt Ol" to a member who already has an account is worse
+  // than making them take one hop through the sign-in page, which links to
+  // sign-up itself.
 ] as const;
