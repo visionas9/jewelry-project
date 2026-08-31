@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import {
   requestPasswordReset,
@@ -97,17 +97,51 @@ function CheckYourInbox({ email }: { email: string }) {
         </p>
       </div>
 
-      {/* Points at the account page, which is where the device that opened the
-          link ends up. On this browser it lands on the sign-in form first and
-          comes back here afterwards, so one button covers both: the person who
-          reset on this browser, and the person who reset on their phone and
-          came back to this tab. */}
-      <Link
-        href="/account"
-        className="rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-brass"
-      >
-        Hesabıma git
-      </Link>
+      <DoneButton />
     </div>
+  );
+}
+
+// Nobody has changed their password five seconds after asking for the email —
+// they have not even opened it. Holding the button shut for that long is what
+// makes it read as the *last* step rather than another way out of this screen,
+// and it costs someone who really is finished a pause they will spend reading
+// the panel above anyway.
+//
+// Where it goes: /account, which is where the device that opened the link ends
+// up. On this browser it lands on the sign-in form first and comes back
+// afterwards, so one button serves both — the person who reset here, and the
+// person who reset on their phone and came back to this tab.
+const LABEL = "Şifremi değiştirdim, hesabıma git";
+
+const BUTTON =
+  "rounded-full px-7 py-3 text-center text-sm tracking-wide transition-colors";
+
+function DoneButton() {
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setReady(true), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // A real disabled button while it waits, not a styled link with the clicks
+  // swallowed: this way the keyboard skips it and a screen reader says it is
+  // unavailable, which is the truth.
+  if (!ready) {
+    return (
+      <button type="button" disabled className={`${BUTTON} bg-line text-muted`}>
+        {LABEL}
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      href="/account"
+      className={`${BUTTON} bg-ink text-cream hover:bg-brass`}
+    >
+      {LABEL}
+    </Link>
   );
 }
