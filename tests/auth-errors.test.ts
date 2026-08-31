@@ -35,6 +35,17 @@ describe("translating Supabase auth errors", () => {
     expect(message).toContain(String(MIN_PASSWORD_LENGTH));
   });
 
+  it("translates the reset form's own refusal", () => {
+    // Reachable only from the password reset form, and the one error there
+    // that the visitor can actually do something about.
+    const message = turkishAuthError({
+      code: "same_password",
+      message: "New password should be different from the old password.",
+    });
+
+    expect(message).toContain("farklı olmalı");
+  });
+
   it("says the same thing for a wrong password and a missing account", () => {
     // Sign-in must not become an oracle for which addresses have accounts
     // here. Supabase returns the same code for both, and the mapping has to
