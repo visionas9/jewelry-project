@@ -32,6 +32,28 @@ export const SITE = {
       : "http://localhost:3000"),
 } as const;
 
+// Where an auth email should send someone back to.
+//
+// Deliberately not SITE.url. That one is the canonical production address, and
+// a preview build claiming the preview domain in its OG tags would be wrong.
+// But a confirmation or reset link built from it is worse: it sends whoever is
+// testing a preview to the live site, where the branch they are testing does
+// not exist yet — a 404 on a link that looks like it should work.
+//
+// So on a Vercel preview this follows the branch's own URL, which is stable
+// across pushes to that branch (unlike VERCEL_URL, which changes on every
+// deploy and would need a new entry in Supabase's redirect allow list each
+// time). Production and local development are untouched.
+//
+// The address only reaches the email because it is passed as `redirectTo` and
+// the templates build their link from it. Supabase refuses a redirect that is
+// not on the project's allow list, so preview domains have to be listed there
+// — see README. Server-only, like SITE.url.
+export const AUTH_URL =
+  process.env.VERCEL_ENV === "preview" && process.env.VERCEL_BRANCH_URL
+    ? `https://${process.env.VERCEL_BRANCH_URL}`
+    : SITE.url;
+
 export const NAV_LINKS = [
   { href: "/", label: "Ana Sayfa" },
   { href: "/products", label: "Bileklikler" },

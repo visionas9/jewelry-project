@@ -2,7 +2,7 @@
 
 import { turkishAuthError } from "@/lib/auth-errors";
 import { looksLikeEmail } from "@/lib/email";
-import { SITE } from "@/lib/site";
+import { AUTH_URL } from "@/lib/site";
 import { createServerSupabase } from "@/lib/supabase-server";
 
 export type ResetRequestState =
@@ -32,12 +32,12 @@ export async function requestPasswordReset(
   const supabase = await createServerSupabase();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    // Only used by Supabase's stock template, which sends the visitor through
-    // their /verify endpoint and back here with a `code`. Our own template
-    // builds the link itself and does not need this — but a hosted project
-    // whose dashboard template has not been updated yet still lands somewhere
-    // that works.
-    redirectTo: `${SITE.url}/auth/reset`,
+    // This is the address the emailed link is built from: the template pastes
+    // it in rather than hardcoding the site, which is what lets a preview
+    // deployment send links back to itself. Supabase also uses it as the
+    // landing spot for its own stock template, so a project whose dashboard
+    // template has not been updated still works.
+    redirectTo: `${AUTH_URL}/auth/reset`,
   });
 
   if (error) {

@@ -7,7 +7,7 @@ import {
   turkishAuthError,
 } from "@/lib/auth-errors";
 import { looksLikeEmail } from "@/lib/email";
-import { SITE } from "@/lib/site";
+import { AUTH_URL } from "@/lib/site";
 
 export type SignUpState =
   | { status: "idle" }
@@ -48,7 +48,7 @@ export async function signUp(
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${SITE.url}/auth/confirm` },
+    options: { emailRedirectTo: `${AUTH_URL}/auth/confirm` },
   });
 
   if (error) {
@@ -93,7 +93,7 @@ export async function resendConfirmation(
   const { error } = await supabase.auth.resend({
     type: "signup",
     email,
-    options: { emailRedirectTo: `${SITE.url}/auth/confirm` },
+    options: { emailRedirectTo: `${AUTH_URL}/auth/confirm` },
   });
 
   if (error) {
