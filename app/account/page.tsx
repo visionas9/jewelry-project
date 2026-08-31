@@ -4,7 +4,9 @@ import { Suspense } from "react";
 
 import { signOut } from "@/app/signout/actions";
 import { DisplayNameForm } from "@/components/account/DisplayNameForm";
+import { OrderHistory } from "@/components/account/OrderHistory";
 import { requireMember } from "@/lib/auth-guard";
+import { listOrders } from "@/lib/orders";
 import { getDisplayName } from "@/lib/profiles";
 
 export const metadata: Metadata = {
@@ -62,7 +64,12 @@ async function ResetNotice({
 
 async function Account() {
   const { user, supabase } = await requireMember("/account");
-  const displayName = await getDisplayName(supabase, user.id);
+
+  // One request, two independent reads.
+  const [displayName, orders] = await Promise.all([
+    getDisplayName(supabase, user.id),
+    listOrders(supabase),
+  ]);
 
   return (
     <>
@@ -88,20 +95,12 @@ async function Account() {
         <DisplayNameForm current={displayName} />
       </div>
 
-      {/* An account with no orders yet has almost nothing to show, and a page
-          that shows almost nothing reads as broken. Saying what will appear
-          here is what makes it read as empty instead. */}
-      <div className="mt-6 rounded-2xl border border-line px-5 py-6">
-        <h2 className="font-display text-xl">Burada neler olacak</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted">
-          Verdiğiniz siparişler ve teslimat bilgileriniz bu sayfada toplanacak.
-          Şu an için hesabınız, alışverişe kaldığınız yerden devam edebilmeniz
-          içindir.
-        </p>
-        <p className="mt-3 text-sm leading-relaxed text-muted">
-          Sepetiniz hesabınızdan bağımsızdır; kullandığınız cihazda saklanır.
-        </p>
-      </div>
+      <OrderHistory orders={orders} />
+
+      {/* Kept from the old panel: people expect a cart to follow the account. */}
+      <p className="mt-6 text-sm leading-relaxed text-muted">
+        Sepetiniz hesabınızdan bağımsızdır; kullandığınız cihazda saklanır.
+      </p>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <Link

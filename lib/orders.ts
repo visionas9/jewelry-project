@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 import { supabase } from "./supabase";
 
 // What the cart is worth, decided by the catalog rather than by the browser.
@@ -87,6 +89,43 @@ export async function priceCart(cart: CartLine[]): Promise<CartSummary> {
     total: lines.reduce((sum, line) => sum + line.subtotal, 0),
     problems,
   };
+}
+
+// One row of the account page's order list.
+export type OrderSummary = {
+  code: string;
+  status: OrderStatus;
+  total: number;
+  itemCount: number;
+  placedAt: string;
+};
+
+// The member's own orders, newest first. Takes the caller's client rather than
+// building one: the policy returns rows for whoever the client is signed in as,
+// so passing the wrong client would return the wrong person's orders.
+export async function listOrders(
+  client: SupabaseClient
+): Promise<OrderSummary[]> {
+  const { data, error } = await client
+    .from("orders")
+    .select("code, status, total, created_at, order_items (quantity)")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    throw new Error(`Siparişler yüklenemedi: ${error.message}`);
+  }
+
+  return data.map((order) => ({
+    code: order.code,
+    status: order.status as OrderStatus,
+    total: Number(order.total),
+    // How many bracelets, not how many lines: two of one is two.
+    itemCount: (order.order_items ?? []).reduce(
+      (count: number, line: { quantity: number }) => count + line.quantity,
+      0
+    ),
+    placedAt: order.created_at,
+  }));
 }
 
 // The state names as somebody reads them. English in the database, Turkish
