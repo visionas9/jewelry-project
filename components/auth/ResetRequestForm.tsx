@@ -95,15 +95,6 @@ function CheckYourInbox({ email }: { email: string }) {
         <p className="mt-3 text-sm leading-relaxed text-muted">
           E-posta birkaç dakika içinde gelmezse spam klasörünüze bakın.
         </p>
-        {/* The part that is easy to get wrong, and the same trap the sign-up
-            screen warns about: the link can be opened on a phone, but the
-            session it creates belongs to the phone. The new password works
-            everywhere immediately; this browser still has to be told about
-            it. */}
-        <p className="mt-3 text-sm leading-relaxed text-muted">
-          Bağlantıyı başka bir cihazda açabilirsiniz. Yeni şifreniz her yerde
-          geçerli olur, ancak bu tarayıcıda giriş yapmanız gerekir.
-        </p>
       </div>
 
       {/* Points at the account page, which is where the device that opened the
