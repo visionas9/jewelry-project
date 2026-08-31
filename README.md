@@ -39,6 +39,14 @@ not describe is overwritten. Check the auth pages against this file once,
 before the first run — after that the file is the source of truth and the
 dashboard is a viewer.
 
+The SMTP password is read from the shell rather than stored here, so it has to
+be set for the push to carry it:
+
+```bash
+export RESEND_SMTP_PASSWORD=...   # the Resend API key
+supabase config push
+```
+
 It needs an access token, from `supabase login` or `SUPABASE_ACCESS_TOKEN`.
 That token can change auth settings on the live project, which is why this is
 a command someone runs on purpose rather than something CI does on a merge.
