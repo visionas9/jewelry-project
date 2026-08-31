@@ -18,15 +18,45 @@ export const metadata: Metadata = {
 // the page. Everything outside the boundary still prerenders into the static
 // shell; only the part that actually depends on who is asking waits for the
 // request. Same shape as /welcome.
-export default function AccountPage() {
+export default function AccountPage(props: PageProps<"/account">) {
   return (
     <section className="mx-auto max-w-md px-5 py-14 md:px-8 md:py-20">
       <h1 className="font-display text-3xl md:text-4xl">Hesabım</h1>
+
+      {/* Its own boundary rather than part of the one below: this line depends
+          on the URL, the rest depends on the session, and neither should wait
+          for the other. */}
+      <Suspense fallback={null}>
+        <ResetNotice searchParams={props.searchParams} />
+      </Suspense>
 
       <Suspense fallback={<Placeholder />}>
         <Account />
       </Suspense>
     </section>
+  );
+}
+
+// Where a finished password reset lands. Without this the reset ends on a page
+// that looks exactly like an ordinary visit, leaving the member to guess
+// whether the new password actually took.
+async function ResetNotice({
+  searchParams,
+}: {
+  searchParams: PageProps<"/account">["searchParams"];
+}) {
+  const { reset } = await searchParams;
+
+  if (reset !== "ok") return null;
+
+  return (
+    <p
+      role="status"
+      className="mt-6 rounded-2xl border border-line bg-sand/60 px-5 py-4 text-sm leading-relaxed text-muted"
+    >
+      Şifreniz güncellendi. Bundan sonra hesabınıza yeni şifrenizle giriş
+      yapabilirsiniz.
+    </p>
   );
 }
 
