@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
+import { supabase as anonymous } from "@/lib/supabase";
 import { createMember, type Member } from "./support/accounts";
 import { createProduct, stockOf } from "./support/products";
 
@@ -93,6 +94,26 @@ describe("placing an order", () => {
   });
 });
 
+describe("a new order", () => {
+  it("starts out waiting for the transfer", async () => {
+    const { data: code } = await ayse.client.rpc("place_order", {
+      items: [{ product_id: 1, quantity: 1 }],
+      ...delivery,
+    });
+
+    const { data: order } = await ayse.client
+      .from("orders")
+      .select("status")
+      .eq("code", code)
+      .maybeSingle();
+
+    // The state names are English in the database and Turkish on the page.
+    // A schema that speaks one language and a UI that speaks another is the
+    // usual arrangement, and it keeps the copy out of migrations.
+    expect(order?.status).toBe("pending");
+  });
+});
+
 describe("stock", () => {
   it("comes down by what was ordered", async () => {
     const bracelet = await createProduct({ price: 250, stock: 5 });
@@ -177,6 +198,96 @@ describe("stock", () => {
   });
 });
 
+describe("the order code", () => {
+  it("is different for every order", async () => {
+    const codes = new Set<string>();
+
+    for (let i = 0; i < 3; i += 1) {
+      const { data: code } = await ayse.client.rpc("place_order", {
+        items: [{ product_id: 1, quantity: 1 }],
+        ...delivery,
+      });
+      codes.add(code as string);
+    }
+
+    expect(codes.size).toBe(3);
+  });
+});
+
+describe("the total", () => {
+  it("is the sum of the lines, across several products", async () => {
+    const first = await createProduct({ price: 120.5, stock: 10 });
+    const second = await createProduct({ price: 300, stock: 10 });
+
+    const { data: code } = await ayse.client.rpc("place_order", {
+      items: [
+        { product_id: first.id, quantity: 2 },
+        { product_id: second.id, quantity: 1 },
+      ],
+      ...delivery,
+    });
+
+    const { data: order } = await ayse.client
+      .from("orders")
+      .select("id, total")
+      .eq("code", code)
+      .maybeSingle();
+
+    const { data: lines } = await ayse.client
+      .from("order_items")
+      .select("quantity, unit_price")
+      .eq("order_id", order!.id);
+
+    // 2 × 120.50 + 300 = 541.00, worked out here rather than by repeating the
+    // query's own arithmetic.
+    expect(Number(order?.total)).toBe(541);
+    expect(lines).toHaveLength(2);
+    expect(
+      lines?.reduce((sum, l) => sum + l.quantity * Number(l.unit_price), 0)
+    ).toBe(541);
+  });
+});
+
+describe("one member cannot reach another", () => {
+  it("hides an order from everyone but its buyer", async () => {
+    const { data: code } = await ayse.client.rpc("place_order", {
+      items: [{ product_id: 1, quantity: 1 }],
+      ...delivery,
+    });
+
+    const { data, error } = await mehmet.client
+      .from("orders")
+      .select("id, code, total")
+      .eq("code", code);
+
+    // Not an error — the row is simply not there as far as Mehmet is
+    // concerned. The policy narrows what the query can see rather than
+    // refusing the query.
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
+  });
+
+  it("hides the lines of an order the same way", async () => {
+    const { data: code } = await ayse.client.rpc("place_order", {
+      items: [{ product_id: 1, quantity: 1 }],
+      ...delivery,
+    });
+
+    const { data: order } = await ayse.client
+      .from("orders")
+      .select("id")
+      .eq("code", code)
+      .maybeSingle();
+
+    const { data } = await mehmet.client
+      .from("order_items")
+      .select("id, quantity, unit_price")
+      .eq("order_id", order!.id);
+
+    expect(data).toEqual([]);
+  });
+});
+
 describe("an order that makes no sense", () => {
   it("refuses a product that does not exist", async () => {
     const before = await ordersPlacedBy(ayse);
@@ -203,6 +314,79 @@ describe("an order that makes no sense", () => {
 
     expect(error?.message).toContain("empty_order");
     expect(await ordersPlacedBy(ayse)).toBe(before);
+  });
+});
+
+describe("orders can only come from place_order", () => {
+  it("refuses an order written straight into the table", async () => {
+    const { error } = await ayse.client.from("orders").insert({
+      buyer_id: ayse.id,
+      code: "IS-99999",
+      total: 1,
+      ...delivery,
+    });
+
+    expect(error).not.toBeNull();
+  });
+
+  it("refuses a member marking their own order paid", async () => {
+    const { data: code } = await ayse.client.rpc("place_order", {
+      items: [{ product_id: 1, quantity: 1 }],
+      ...delivery,
+    });
+
+    const { error } = await ayse.client
+      .from("orders")
+      .update({ status: "paid" })
+      .eq("code", code);
+
+    // The whole payment arrangement rests on this: she decides an order is
+    // paid, after seeing the money. Nobody else gets to say so.
+    expect(error).not.toBeNull();
+  });
+
+  it("refuses a member deleting an order", async () => {
+    const { data: code } = await ayse.client.rpc("place_order", {
+      items: [{ product_id: 1, quantity: 1 }],
+      ...delivery,
+    });
+
+    const { error } = await ayse.client.from("orders").delete().eq("code", code);
+
+    expect(error).not.toBeNull();
+  });
+
+  it("refuses a line written straight into the table", async () => {
+    const { error } = await ayse.client.from("order_items").insert({
+      order_id: 1,
+      product_id: 1,
+      quantity: 1,
+      unit_price: 1,
+    });
+
+    expect(error).not.toBeNull();
+  });
+});
+
+describe("a signed-out visitor", () => {
+  it("cannot read an order", async () => {
+    const { data, error } = await anonymous.from("orders").select("id, code");
+
+    expect(data ?? []).toEqual([]);
+    if (error) expect(error.code).toBe("42501");
+  });
+
+  it("cannot place one", async () => {
+    const { error } = await anonymous.rpc("place_order", {
+      items: [{ product_id: 1, quantity: 1 }],
+      ...delivery,
+    });
+
+    // Refused at the door, not deep inside on a not-null constraint. The
+    // difference matters: reaching the body means a signed-out caller has
+    // already spent an order code and taken locks on the catalog before
+    // anything stops them.
+    expect(error?.code).toBe("42501");
   });
 });
 

@@ -10,6 +10,23 @@
 -- read down a phone line: no ambiguity between O and 0, no uuid.
 create sequence order_code_seq;
 
+-- The life of an order, in the order it happens. English here and Turkish on
+-- the page: a state is a fact about the order, not a sentence, and copy that
+-- lives in a migration can only be changed by another migration.
+--
+--   pending   — placed, waiting for the transfer to arrive
+--   paid      — she has seen the money
+--   shipped   — handed to the courier
+--   delivered — arrived
+--   cancelled — the transfer never came, or it was called off
+create type order_status as enum (
+  'pending',
+  'paid',
+  'shipped',
+  'delivered',
+  'cancelled'
+);
+
 create table orders (
   id         bigint generated always as identity primary key,
   buyer_id   uuid not null references auth.users (id) on delete restrict,
@@ -22,6 +39,7 @@ create table orders (
   city       text not null,
   district   text not null,
   address    text not null,
+  status     order_status not null default 'pending',
   total      numeric(10,2) not null check (total >= 0),
   created_at timestamptz not null default now()
 );
@@ -192,3 +210,10 @@ using (
       and orders.buyer_id = (select auth.uid())
   )
 );
+
+-- Postgres grants EXECUTE on a new function to PUBLIC, which here means the
+-- anon key a browser carries. Left alone, a signed-out caller reaches the body
+-- and is only stopped at the end by buyer_id being null — after spending an
+-- order code and taking locks on the catalog. Shut the door instead.
+revoke execute on function place_order(jsonb, text, text, text, text, text) from public;
+grant execute on function place_order(jsonb, text, text, text, text, text) to authenticated;
