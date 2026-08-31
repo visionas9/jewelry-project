@@ -16,29 +16,51 @@ export async function getDisplayName(
   supabase: SupabaseClient,
   userId: string
 ): Promise<string | null> {
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("profiles")
     .select("display_name")
     .eq("id", userId)
     .maybeSingle<ProfileRow>();
 
+  if (error) {
+    // A missing table, a revoked grant, a database that is simply down: all of
+    // them arrive here as an error and all of them used to look exactly like a
+    // member who had not set a name yet.
+    console.error("profiles: could not read display name", error);
+  }
+
   return data?.display_name ?? null;
 }
 
-// Returns whether it saved. The caller turns that into something Turkish; this
-// has no opinion about what the member should be told.
+// Why this is three outcomes and not a boolean:
+//
+// An update that matches no rows is not an error in Postgres. It returns
+// cleanly, having done nothing. So a member whose profile row is missing — the
+// row the sign-up trigger is supposed to create — got told their name was
+// saved, every time, forever.
+export type SaveResult = "saved" | "no-profile" | "failed";
+
 export async function setDisplayName(
   supabase: SupabaseClient,
   userId: string,
   displayName: string | null
-): Promise<boolean> {
+): Promise<SaveResult> {
   // Filtered by id even though the policy already limits this to the member's
   // own row. Belt and braces, and it means a policy edited badly later fails
   // closed here rather than rewriting every profile in the table.
-  const { error } = await supabase
+  //
+  // `.select()` is what makes the write answerable: without it Supabase returns
+  // nothing at all and there is no way to tell a save from a no-op.
+  const { data, error } = await supabase
     .from("profiles")
     .update({ display_name: displayName })
-    .eq("id", userId);
+    .eq("id", userId)
+    .select("id");
 
-  return error === null;
+  if (error) {
+    console.error("profiles: could not save display name", error);
+    return "failed";
+  }
+
+  return data && data.length > 0 ? "saved" : "no-profile";
 }
