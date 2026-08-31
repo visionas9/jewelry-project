@@ -9,10 +9,20 @@ import { createProduct, stockOf } from "./support/products";
 // check one.
 
 let ayse: Member;
+let mehmet: Member;
 
 beforeAll(async () => {
   ayse = await createMember("siparis-ayse@example.com", "cok-gizli-parola-1");
+  mehmet = await createMember("siparis-mehmet@example.com", "cok-gizli-parola-2");
 });
+
+const delivery = {
+  full_name: "Ayşe Yılmaz",
+  phone: "05001112233",
+  city: "İstanbul",
+  district: "Kadıköy",
+  address: "Caferağa Mah. Örnek Sok. No 3 D 5",
+};
 
 describe("placing an order", () => {
   it("hands back a code for the order it created", async () => {
@@ -100,6 +110,52 @@ describe("stock", () => {
     expect(await stockOf(bracelet.id)).toBe(3);
   });
 
+  it("lets only one of many people have the last piece", async () => {
+    const bracelet = await createProduct({ price: 250, stock: 1 });
+
+    // Eight at once rather than two. A single pair of requests tends to
+    // serialise by luck — they finish before they can collide — and a test
+    // that passes because nothing overlapped proves nothing about the thing it
+    // claims. Eight is enough that some genuinely overlap.
+    const attempts = Array.from({ length: 8 }, (_, index) =>
+      (index % 2 === 0 ? ayse : mehmet).client.rpc("place_order", {
+        items: [{ product_id: bracelet.id, quantity: 1 }],
+        ...delivery,
+      })
+    );
+
+    const outcomes = await Promise.all(attempts);
+    const won = outcomes.filter((result) => result.error === null);
+    const lost = outcomes.filter((result) => result.error !== null);
+
+    expect(won).toHaveLength(1);
+    // Every loser is told the same thing as anyone else who was too late. A
+    // constraint violation leaking out here would mean the check and the
+    // decrement were two steps with a gap between them.
+    for (const loser of lost) {
+      expect(loser.error?.message).toContain("insufficient_stock");
+    }
+    expect(await stockOf(bracelet.id)).toBe(0);
+  });
+
+  it("counts the same product sent twice as one demand on stock", async () => {
+    const bracelet = await createProduct({ price: 250, stock: 1 });
+
+    // Nothing in the shop's own cart produces this — it is keyed by product —
+    // but place_order is a public endpoint and the caller writes the list. Two
+    // lines of one each against a stock of one is an order for two.
+    const { error } = await ayse.client.rpc("place_order", {
+      items: [
+        { product_id: bracelet.id, quantity: 1 },
+        { product_id: bracelet.id, quantity: 1 },
+      ],
+      ...delivery,
+    });
+
+    expect(error?.message).toContain("insufficient_stock");
+    expect(await stockOf(bracelet.id)).toBe(1);
+  });
+
   it("refuses an order for more than there is, and leaves nothing behind", async () => {
     const bracelet = await createProduct({ price: 250, stock: 1 });
     const before = await ordersPlacedBy(ayse);
@@ -117,6 +173,35 @@ describe("stock", () => {
     // ran out, and it cannot guess.
     expect(error?.message).toContain("insufficient_stock");
     expect(await stockOf(bracelet.id)).toBe(1);
+    expect(await ordersPlacedBy(ayse)).toBe(before);
+  });
+});
+
+describe("an order that makes no sense", () => {
+  it("refuses a product that does not exist", async () => {
+    const before = await ordersPlacedBy(ayse);
+
+    const { error } = await ayse.client.rpc("place_order", {
+      items: [{ product_id: 987654321, quantity: 1 }],
+      ...delivery,
+    });
+
+    // Silently dropping the line would write an order for nothing at all, and
+    // charge nothing for it. A bracelet pulled from the catalog mid-checkout
+    // reaches here the same way.
+    expect(error?.message).toContain("unknown_product");
+    expect(await ordersPlacedBy(ayse)).toBe(before);
+  });
+
+  it("refuses an order with nothing in it", async () => {
+    const before = await ordersPlacedBy(ayse);
+
+    const { error } = await ayse.client.rpc("place_order", {
+      items: [],
+      ...delivery,
+    });
+
+    expect(error?.message).toContain("empty_order");
     expect(await ordersPlacedBy(ayse)).toBe(before);
   });
 });

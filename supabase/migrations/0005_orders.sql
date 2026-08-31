@@ -63,6 +63,51 @@ declare
   new_code text;
   sold_out text;
 begin
+  -- One line per product, whatever shape the caller sent. The shop's own cart
+  -- is keyed by product and cannot produce a duplicate, but this is a public
+  -- endpoint and the caller writes the list: two lines of one each, against a
+  -- stock of one, is an order for two. Merging first means every check below
+  -- sees the real demand.
+  select coalesce(
+    jsonb_agg(jsonb_build_object('product_id', merged.product_id, 'quantity', merged.quantity)),
+    '[]'::jsonb
+  )
+  into items
+  from (
+    select i.product_id, sum(i.quantity)::integer as quantity
+    from jsonb_to_recordset(items) as i(product_id bigint, quantity integer)
+    group by i.product_id
+  ) merged;
+
+  -- An order with no lines would be a row with a total of zero and nothing to
+  -- ship. Refused here rather than left for the page to notice.
+  if jsonb_array_length(items) = 0 then
+    raise exception 'empty_order';
+  end if;
+
+  -- Every id has to name something. Left as a join, a missing product simply
+  -- vanishes from the order — the line is dropped, the total shrinks, and
+  -- nobody is told. A bracelet pulled from the catalog mid-checkout arrives
+  -- here exactly this way.
+  if exists (
+    select 1
+    from jsonb_to_recordset(items) as i(product_id bigint, quantity integer)
+    where not exists (select 1 from products p where p.id = i.product_id)
+  ) then
+    raise exception 'unknown_product';
+  end if;
+
+  -- Lock every product this order touches before looking at its stock, so a
+  -- second order cannot slip between the reading and the spending. Ordered by
+  -- id because two orders touching the same pair of products in opposite
+  -- orders would otherwise wait on each other forever.
+  perform 1
+  from products p
+  join jsonb_to_recordset(items) as i(product_id bigint, quantity integer)
+    on p.id = i.product_id
+  order by p.id
+  for update of p;
+
   -- What ran out, if anything. The check constraint on products.stock would
   -- catch this too, but only as "new row violates check constraint" — and the
   -- checkout page has to tell somebody *which* bracelet is gone. The name
