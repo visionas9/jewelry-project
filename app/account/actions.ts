@@ -34,9 +34,18 @@ export async function updateDisplayName(
   // No id travels in the form, so there is nothing here to tamper with. The
   // row written is the one belonging to the verified session, and the update
   // policy re-checks that in the database regardless.
-  const saved = await setDisplayName(supabase, user.id, result.value);
+  const outcome = await setDisplayName(supabase, user.id, result.value);
 
-  if (!saved) {
+  if (outcome !== "saved") {
+    // Both failures are the shop's to fix, not the member's, so they read the
+    // same sentence either way. The difference is in the log: "no-profile"
+    // means the row the sign-up trigger should have created is not there, which
+    // is a database that has fallen behind the migrations rather than a query
+    // that went wrong.
+    if (outcome === "no-profile") {
+      console.error("profiles: no profile row for member", user.id);
+    }
+
     return { ok: false, message: GENERIC_AUTH_ERROR };
   }
 
