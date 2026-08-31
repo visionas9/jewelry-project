@@ -88,3 +88,48 @@ export async function priceCart(cart: CartLine[]): Promise<CartSummary> {
     problems,
   };
 }
+
+// The state names as somebody reads them. English in the database, Turkish
+// here: a state is a fact about the order, and the sentence describing it
+// belongs with the rest of the copy rather than in a migration.
+export const ORDER_STATUS_LABELS = {
+  pending: "Ödeme bekleniyor",
+  paid: "Ödeme alındı",
+  shipped: "Kargoya verildi",
+  delivered: "Teslim edildi",
+  cancelled: "İptal edildi",
+} as const;
+
+export type OrderStatus = keyof typeof ORDER_STATUS_LABELS;
+
+export const GENERIC_ORDER_ERROR =
+  "Siparişiniz alınamadı. Lütfen birazdan tekrar deneyin.";
+
+// place_order refuses in three ways, each with a stable code rather than a
+// sentence — see supabase/migrations/0005_orders.sql. This is the one place
+// those codes become Turkish.
+export function turkishOrderError(error: unknown): string {
+  if (!error || typeof error !== "object") return GENERIC_ORDER_ERROR;
+
+  const { message, details } = error as { message?: unknown; details?: unknown };
+
+  if (typeof message !== "string") return GENERIC_ORDER_ERROR;
+
+  if (message.includes("insufficient_stock")) {
+    // The name of what ran out travels in DETAIL, because "bir ürün" is not
+    // enough to act on when the cart holds four things.
+    return typeof details === "string" && details !== ""
+      ? `${details} için yeterli stok kalmadı. Sepetinizi güncelleyip tekrar deneyin.`
+      : "Sepetinizdeki bir ürün için yeterli stok kalmadı. Sepetinizi güncelleyin.";
+  }
+
+  if (message.includes("unknown_product")) {
+    return "Sepetinizdeki bir ürün artık satışta değil. Lütfen sepetinizi güncelleyin.";
+  }
+
+  if (message.includes("empty_order")) {
+    return "Sepetiniz boş görünüyor.";
+  }
+
+  return GENERIC_ORDER_ERROR;
+}

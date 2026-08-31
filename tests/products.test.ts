@@ -16,12 +16,24 @@ import { supabase } from "@/lib/supabase";
 // Everything here uses the anon key, so it sees exactly what an unauthenticated
 // visitor sees.
 
+const SEEDED_SLUGS = [
+  "rose-quartz",
+  "pearl-leaf",
+  "lapis-blue",
+  "rhodonite-rose",
+  "green-sun",
+  "luna-turmalin",
+];
+
 describe("reading the catalog without a session", () => {
   it("returns every seeded product", async () => {
     const products = await getProducts();
 
-    expect(products).toHaveLength(6);
-    expect(products.map((product) => product.slug)).toContain("rose-quartz");
+    // Named rather than counted, for the same reason as the slugs below: the
+    // order tests share this database and stand up products of their own.
+    expect(products.map((product) => product.slug)).toEqual(
+      expect.arrayContaining(SEEDED_SLUGS)
+    );
   });
 
   it("maps a row onto the Product shape", async () => {
@@ -41,8 +53,10 @@ describe("reading the catalog without a session", () => {
   it("lists the slugs used to build the product routes", async () => {
     const slugs = await getProductSlugs();
 
-    expect(slugs).toHaveLength(6);
-    expect(slugs).toContain("pearl-leaf");
+    // Every seeded bracelet, rather than a count of the table. The order tests
+    // stand up products of their own with known stock, and they share this
+    // database — a count here would fail depending on which file ran first.
+    expect(slugs).toEqual(expect.arrayContaining(SEEDED_SLUGS));
   });
 
   it("filters by stone", async () => {
