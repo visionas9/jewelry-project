@@ -1,0 +1,16 @@
+-- Take back what the hosted project handed out on its own.
+--
+-- 0002 grants select and update(display_name) to `authenticated` and grants
+-- nothing to `anon`, on the assumption that granting nothing leaves nothing.
+-- That holds on a local stack. It does not hold on Supabase's hosted projects,
+-- where default privileges on the public schema hand `anon` select on every
+-- table created there — including one created moments ago by a migration that
+-- never mentioned anon.
+--
+-- The rows were never readable: RLS is on and no policy admits anon, so a
+-- signed-out request came back empty rather than full. But empty-by-policy is
+-- one layer where this was meant to have two, and the remaining layer is the
+-- one a single careless `using (true)` would undo.
+--
+-- Explicit, so it survives the next table created by the same defaults.
+revoke all on public.profiles from anon;
