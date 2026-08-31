@@ -9,7 +9,12 @@ import { takePendingEmail } from "@/lib/pending-email";
 const FIELD =
   "w-full appearance-none rounded-2xl border border-line bg-cream px-4 py-3 text-base outline-none transition-colors placeholder:text-muted focus:border-ink";
 
-export function SignInForm() {
+// `children` is a slot for server-rendered hidden fields — the return path
+// today. Rendering it here rather than reading the URL in this component keeps
+// the form in the static shell: a client component that reads search params is
+// dropped from the prerendered HTML entirely, and the whole form would flash in
+// after hydration instead of being there on arrival.
+export function SignInForm({ children }: { children?: React.ReactNode }) {
   const [state, formAction, pending] = useActionState<SignInState, FormData>(
     signIn,
     null
@@ -30,6 +35,8 @@ export function SignInForm() {
 
   return (
     <form action={formAction} className="mt-8 flex flex-col gap-5" noValidate>
+      {children}
+
       <p
         role="alert"
         aria-live="polite"
