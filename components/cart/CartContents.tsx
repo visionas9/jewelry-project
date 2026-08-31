@@ -176,18 +176,15 @@ export function CartContents({ products }: { products: Product[] }) {
           </div>
 
           <p className="mt-2 text-xs leading-relaxed text-muted">
-            Kargo ücreti sipariş adımında hesaplanacak.
+            Kargo ücretsizdir.
           </p>
 
-          {/* No checkout yet — orders and the form come next. A button that
-              silently does nothing would be worse than an honest one. */}
-          <button
-            type="button"
-            disabled
-            className="mt-6 w-full rounded-full bg-line px-7 py-3 text-sm tracking-wide text-muted"
+          <Link
+            href="/checkout"
+            className="mt-6 block w-full rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-brass"
           >
-            Sipariş adımı çok yakında
-          </button>
+            Siparişi tamamla
+          </Link>
         </div>
       </aside>
     </div>

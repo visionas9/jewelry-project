@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { CartBadge } from "@/components/cart/CartBadge";
 import { NAV_LINKS, SITE } from "@/lib/site";
@@ -38,13 +40,37 @@ export function Header() {
 
             {/* Last, and not part of NAV_LINKS: this slot is a sign-in link or
                 an account link depending on who is looking, which is a runtime
-                answer rather than a fixed piece of the menu. */}
+                answer rather than a fixed piece of the menu.
+
+                Behind a boundary because it reads the pathname, and on a route
+                with a parameter in it there is no pathname to read while the
+                shell is being built — the header would drag every such page out
+                of its static shell, or refuse to build at all. The fallback is
+                the same empty slot the component itself shows before it knows
+                who is looking, so nothing moves when it arrives. */}
             <li>
-              <HeaderAuth />
+              <Suspense fallback={<AuthSlotPlaceholder />}>
+                <HeaderAuth />
+              </Suspense>
             </li>
           </ul>
         </nav>
       </div>
     </header>
+  );
+}
+
+// Holds the width of the longer of the two labels, exactly as HeaderAuth does,
+// so the nav does not shift when the real slot replaces this one.
+function AuthSlotPlaceholder() {
+  return (
+    <span className="grid justify-items-start">
+      <span aria-hidden className="invisible col-start-1 row-start-1">
+        Giriş Yap
+      </span>
+      <span aria-hidden className="invisible col-start-1 row-start-1">
+        Hesabım
+      </span>
+    </span>
   );
 }
