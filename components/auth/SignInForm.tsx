@@ -16,7 +16,23 @@ const FIELD =
 // after hydration instead of being there on arrival.
 export function SignInForm({ children }: { children?: React.ReactNode }) {
   const [state, formAction, pending] = useActionState<SignInState, FormData>(
-    signIn,
+    // The return path is a hidden field rendered on the server, and it arrives
+    // with the streamed part of the page — while the form itself is in the
+    // static shell and is submittable the moment it paints. Somebody quick, or
+    // on a slow connection, can therefore submit before the field lands, and
+    // silently end up on the home page instead of back where they were going.
+    //
+    // So the URL is asked as well, at the moment of submitting, when it is
+    // certainly there. The server still validates whatever arrives — this
+    // decides nothing about where the visitor may be sent.
+    (previous, formData) => {
+      if (!formData.get("next")) {
+        const fromUrl = new URLSearchParams(window.location.search).get("next");
+        if (fromUrl) formData.set("next", fromUrl);
+      }
+
+      return signIn(previous, formData);
+    },
     null
   );
   const emailRef = useRef<HTMLInputElement>(null);
