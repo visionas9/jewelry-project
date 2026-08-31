@@ -29,6 +29,9 @@ const BY_CODE: Record<string, string> = {
   invalid_login_credentials: "E-posta veya şifre hatalı.",
   email_address_invalid: "Geçerli bir e-posta adresi girin.",
   validation_failed: "Girdiğiniz bilgileri kontrol edin.",
+  // Only reachable from the reset form, where Supabase refuses a password that
+  // matches the current one.
+  same_password: "Yeni şifreniz eskisinden farklı olmalı.",
   email_not_confirmed:
     "E-posta adresiniz henüz doğrulanmadı. Gelen kutunuzu kontrol edin.",
   otp_expired:
@@ -50,6 +53,7 @@ const BY_MESSAGE: [RegExp, string][] = [
   [/invalid login credentials|invalid credentials/i, BY_CODE.invalid_credentials],
   [/rate limit|too many/i, BY_CODE.over_request_rate_limit],
   [/expired/i, BY_CODE.otp_expired],
+  [/should be different/i, BY_CODE.same_password],
 ];
 
 // Deliberately accepts `unknown`: callers pass whatever Supabase handed back,

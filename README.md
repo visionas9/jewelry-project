@@ -17,6 +17,32 @@ NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 ```
 
+## Auth emails and where their links point
+
+The confirmation and reset emails build their link from the address the app
+asks Supabase to send people back to, not from a hardcoded site. On a Vercel
+preview that address is the branch's own URL, so a reset requested on a preview
+can be finished on that same preview instead of bouncing to production.
+
+Supabase only honours that address if it is on the project's redirect allow
+list. Two entries are needed in the dashboard, under **Authentication → URL
+Configuration → Redirect URLs**:
+
+```
+https://ishindenshinstore.com/**
+https://ishin-denshin-git-*-visionas9s-projects.vercel.app/**
+```
+
+Without the matching entry Supabase quietly swaps in the project's Site URL,
+which is the bare host with no path — the link keeps its token and lands on the
+home page. `proxy.ts` catches that case and forwards it to the right route, so
+a missing entry costs a wrong hostname rather than a broken account, but the
+allow list is still the thing to fix.
+
+The templates in `supabase/templates/` apply to the local stack only. The
+hosted project keeps its own copies under **Authentication → Email Templates**,
+and changing one here means pasting it there too.
+
 ## Database
 
 `supabase/migrations/` is the schema — the single source of truth. Applying SQL

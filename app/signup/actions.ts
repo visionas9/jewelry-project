@@ -6,7 +6,8 @@ import {
   MIN_PASSWORD_LENGTH,
   turkishAuthError,
 } from "@/lib/auth-errors";
-import { SITE } from "@/lib/site";
+import { looksLikeEmail } from "@/lib/email";
+import { AUTH_URL } from "@/lib/site";
 
 export type SignUpState =
   | { status: "idle" }
@@ -15,11 +16,6 @@ export type SignUpState =
   // visitor could edit.
   | { status: "sent"; email: string }
   | { status: "error"; message: string; email: string };
-
-// Cheap shape check, not RFC 5322. The real verdict comes from Supabase and
-// from whether the confirmation email actually arrives; this only spares the
-// visitor a network roundtrip for an obvious typo.
-const LOOKS_LIKE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export async function signUp(
   _previous: SignUpState,
@@ -31,7 +27,7 @@ export async function signUp(
   // Re-checked here even though the form marks both fields `required`. The
   // browser's validation is a convenience for the visitor; this action is a
   // public POST endpoint and has to assume the form was never involved.
-  if (!LOOKS_LIKE_EMAIL.test(email)) {
+  if (!looksLikeEmail(email)) {
     return {
       status: "error",
       email,
@@ -52,7 +48,7 @@ export async function signUp(
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${SITE.url}/auth/confirm` },
+    options: { emailRedirectTo: `${AUTH_URL}/auth/confirm` },
   });
 
   if (error) {
@@ -88,7 +84,7 @@ export async function resendConfirmation(
   email: string,
   _previous: ResendState
 ): Promise<ResendState> {
-  if (!LOOKS_LIKE_EMAIL.test(email)) {
+  if (!looksLikeEmail(email)) {
     return { ok: false, message: GENERIC_AUTH_ERROR };
   }
 
@@ -97,7 +93,7 @@ export async function resendConfirmation(
   const { error } = await supabase.auth.resend({
     type: "signup",
     email,
-    options: { emailRedirectTo: `${SITE.url}/auth/confirm` },
+    options: { emailRedirectTo: `${AUTH_URL}/auth/confirm` },
   });
 
   if (error) {

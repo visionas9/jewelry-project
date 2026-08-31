@@ -79,6 +79,16 @@ export function SignInForm({ children }: { children?: React.ReactNode }) {
           required
           className={FIELD}
         />
+        {/* Under the field it belongs to, where someone who has just failed to
+            remember it is already looking. Plain text rather than a hint: the
+            visitor who needs this is stuck, and a subtle link is one more
+            thing to hunt for. */}
+        <Link
+          href="/forgot-password"
+          className="self-start text-sm text-muted underline hover:text-ink"
+        >
+          Şifrenizi mi unuttunuz?
+        </Link>
       </div>
 
       <button
