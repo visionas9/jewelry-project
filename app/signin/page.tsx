@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { SignInForm } from "@/components/auth/SignInForm";
+import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { safeInternalPath } from "@/lib/safe-path";
 
 export const metadata: Metadata = {
@@ -51,15 +52,29 @@ async function GuardNotice({
 }: {
   searchParams: PageProps<"/signin">["searchParams"];
 }) {
-  if (!safeInternalPath((await searchParams).next)) return null;
+  const next = safeInternalPath((await searchParams).next);
+
+  if (!next) return null;
+
+  // Somebody sent here on the way to buying something is not signing in, they
+  // are on step one of three. Saying so is the difference between an
+  // interruption and a journey — and it is only true for that one destination,
+  // so an ordinary sign-in still looks like an ordinary sign-in.
+  const buying = next === "/checkout";
 
   return (
-    <p
-      role="status"
-      className="mt-6 rounded-2xl border border-line bg-sand/60 px-5 py-4 text-sm leading-relaxed text-muted"
-    >
-      Devam etmek için bu tarayıcıda giriş yapmanız gerekiyor.
-    </p>
+    <>
+      {buying ? <CheckoutSteps current={1} /> : null}
+
+      <p
+        role="status"
+        className="mt-6 rounded-2xl border border-line bg-sand/60 px-5 py-4 text-sm leading-relaxed text-muted"
+      >
+        {buying
+          ? "Siparişinizi tamamlamak için giriş yapın. Sepetiniz olduğu gibi kalır."
+          : "Devam etmek için bu tarayıcıda giriş yapmanız gerekiyor."}
+      </p>
+    </>
   );
 }
 

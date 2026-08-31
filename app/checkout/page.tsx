@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
+import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { requireMember } from "@/lib/auth-guard";
 
 export const metadata: Metadata = {
@@ -20,6 +21,8 @@ export default function CheckoutPage() {
         Teslimat bilgilerinizi yazın. Ödeme, sipariş kodunuzla havale/EFT
         yoluyla yapılır.
       </p>
+
+      <CheckoutSteps current={2} />
 
       {/* The guard is inside its own boundary so the heading above still
           prerenders. Ordering belongs to one member, so this page cannot be

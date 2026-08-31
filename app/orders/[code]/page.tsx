@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { CopyIban } from "@/components/checkout/CopyIban";
 import { requireMember } from "@/lib/auth-guard";
 import { BANK } from "@/lib/bank";
@@ -63,6 +64,10 @@ async function Order({ params }: { params: PageProps<"/orders/[code]">["params"]
         </span>
         .
       </p>
+
+      {/* Only while the transfer is outstanding. Once it has arrived the order
+          is not a checkout step any more, it is a parcel on its way. */}
+      {waiting ? <CheckoutSteps current={3} /> : null}
 
       {waiting ? (
         <div className="mt-8 rounded-2xl border border-line bg-sand/60 px-5 py-6">
