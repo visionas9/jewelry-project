@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
-import { redirect } from "next/navigation";
 
 import { signOut } from "@/app/signout/actions";
-import { createServerSupabase } from "@/lib/supabase-server";
+import { requireMember } from "@/lib/auth-guard";
 
 export const metadata: Metadata = {
+  // Nothing here is meant for a search result, and there is nothing a
+  // signed-out crawler could see anyway.
   title: "Hesabım",
-  // Nothing here is meant for a search result, and there is nothing a signed-out
-  // crawler could see anyway.
   robots: { index: false },
 };
 
@@ -29,41 +29,47 @@ export default function AccountPage() {
 }
 
 async function Account() {
-  const supabase = await createServerSupabase();
-
-  // getUser, not getSession: this is a real guard, so it has to verify the
-  // token with Supabase rather than believe whatever the cookie says. The
-  // header can afford getSession because it only picks a link; this cannot.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // Straight to sign-in, with no record of where they were headed — this page
-  // is the only account route so far, so there is nowhere else to come back to
-  // yet. Carrying a return path belongs with the rest of the account routes.
-  if (!user) redirect("/signin");
+  const user = await requireMember("/account");
 
   return (
     <>
       <p className="mt-4 text-sm leading-relaxed text-muted">
-        Hesabınız{" "}
-        <span className="text-ink">{user.email}</span> adresine kayıtlı.
+        Hesabınız <span className="text-ink">{user.email}</span> adresine
+        kayıtlı.
       </p>
 
-      <p className="mt-4 text-sm leading-relaxed text-muted">
-        Siparişleriniz ve kayıtlı bilgileriniz burada görünecek. Şimdilik
-        hesabınız yalnızca giriş yapmanız için duruyor — sepetiniz hesabınızdan
-        bağımsız olarak bu cihazda saklanır.
-      </p>
+      {/* An account with no orders yet has almost nothing to show, and a page
+          that shows almost nothing reads as broken. Saying what will appear
+          here is what makes it read as empty instead. */}
+      <div className="mt-8 rounded-2xl border border-line bg-sand/60 px-5 py-6">
+        <h2 className="font-display text-xl">Burada neler olacak</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          Verdiğiniz siparişler ve teslimat bilgileriniz bu sayfada
+          toplanacak. Şu an için hesabınız, alışverişe kaldığınız yerden devam
+          edebilmeniz içindir.
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          Sepetiniz hesabınızdan bağımsızdır; kullandığınız cihazda saklanır.
+        </p>
+      </div>
 
-      <form action={signOut} className="mt-8">
-        <button
-          type="submit"
-          className="rounded-full border border-line px-7 py-3 text-sm transition-colors hover:border-ink"
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Link
+          href="/products"
+          className="rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-brass"
         >
-          Çıkış yap
-        </button>
-      </form>
+          Bilekliklere göz at
+        </Link>
+
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="w-full rounded-full border border-line px-7 py-3 text-sm transition-colors hover:border-ink sm:w-auto"
+          >
+            Çıkış yap
+          </button>
+        </form>
+      </div>
     </>
   );
 }
@@ -72,8 +78,8 @@ function Placeholder() {
   return (
     <div aria-hidden="true" className="animate-pulse">
       <div className="mt-6 h-4 w-2/3 rounded-full bg-sand" />
-      <div className="mt-4 h-4 w-full rounded-full bg-sand" />
-      <div className="mt-8 h-12 w-36 rounded-full bg-sand" />
+      <div className="mt-8 h-40 w-full rounded-2xl bg-sand" />
+      <div className="mt-8 h-12 w-56 rounded-full bg-sand" />
     </div>
   );
 }
