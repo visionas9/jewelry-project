@@ -61,7 +61,31 @@ as $$
 declare
   new_order_id bigint;
   new_code text;
+  sold_out text;
 begin
+  -- What ran out, if anything. The check constraint on products.stock would
+  -- catch this too, but only as "new row violates check constraint" — and the
+  -- checkout page has to tell somebody *which* bracelet is gone. The name
+  -- travels in DETAIL; the message stays a stable code for the app to match on
+  -- rather than a Turkish sentence living in the database.
+  select p.name
+  into sold_out
+  from jsonb_to_recordset(items) as i(product_id bigint, quantity integer)
+  join products p on p.id = i.product_id
+  where p.stock < i.quantity
+  limit 1;
+
+  if sold_out is not null then
+    raise exception 'insufficient_stock' using detail = sold_out;
+  end if;
+
+  -- Stock first, and in the same transaction as the order below. Spending it
+  -- before writing the order means a failure here leaves nothing behind.
+  update products p
+  set stock = p.stock - i.quantity
+  from jsonb_to_recordset(items) as i(product_id bigint, quantity integer)
+  where p.id = i.product_id;
+
   insert into orders (buyer_id, code, full_name, phone, city, district, address, total)
   values (
     auth.uid(),
@@ -105,3 +129,21 @@ on orders
 for select
 to authenticated
 using ((select auth.uid()) = buyer_id);
+
+grant select on order_items to authenticated;
+
+-- A line is reachable exactly when its order is. Written as an EXISTS against
+-- orders rather than by repeating the buyer check, so the two can never drift
+-- apart: change who may read an order and the lines follow.
+create policy "members read the lines of their own orders"
+on order_items
+for select
+to authenticated
+using (
+  exists (
+    select 1
+    from orders
+    where orders.id = order_items.order_id
+      and orders.buyer_id = (select auth.uid())
+  )
+);

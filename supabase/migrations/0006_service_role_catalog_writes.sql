@@ -1,0 +1,11 @@
+-- The service role may write the catalog.
+--
+-- Supabase's own key, never in a browser and never in the app's client bundle.
+-- It is how the shop edits its own products — the admin panel will use it, and
+-- the test suite already needs it to stand up a bracelet with a known stock.
+--
+-- Explicit because this project turned off the setting that auto-exposes new
+-- tables, so nothing is granted to anybody unless it is written down. On the
+-- hosted project the same grants arrive by default, which is exactly the kind
+-- of difference between local and live that this file exists to erase.
+grant select, insert, update on products to service_role;
