@@ -18,6 +18,13 @@ export default function SignInPage(props: PageProps<"/signin">) {
         Hesabınızla devam edin. Sepetiniz olduğu gibi kalır.
       </p>
 
+      {/* Behind its own boundary, like the hidden field below and for the same
+          reason: it depends on the URL, and reading that at the top of the
+          page would make the heading wait for the request too. */}
+      <Suspense fallback={null}>
+        <GuardNotice searchParams={props.searchParams} />
+      </Suspense>
+
       {/* The form itself is the same for everyone, so it stays in the static
           shell. Only the one hidden field that depends on the URL waits for
           the request — reading `next` up here would have made the whole page,
@@ -28,6 +35,31 @@ export default function SignInPage(props: PageProps<"/signin">) {
         </Suspense>
       </SignInForm>
     </section>
+  );
+}
+
+// Why someone is looking at this page when they did not ask for it.
+//
+// A `next` in the URL means the guard sent them: they were reaching for a page
+// that belongs to a member. The commonest way to arrive here is the one that
+// looks broken without a word of explanation — confirming an email or
+// finishing a password reset on a phone, then coming back to the laptop that
+// started it. That laptop is not signed in and cannot be, because the session
+// is a cookie on the phone.
+async function GuardNotice({
+  searchParams,
+}: {
+  searchParams: PageProps<"/signin">["searchParams"];
+}) {
+  if (!safeInternalPath((await searchParams).next)) return null;
+
+  return (
+    <p
+      role="status"
+      className="mt-6 rounded-2xl border border-line bg-sand/60 px-5 py-4 text-sm leading-relaxed text-muted"
+    >
+      Devam etmek için bu tarayıcıda giriş yapmanız gerekiyor.
+    </p>
   );
 }
 

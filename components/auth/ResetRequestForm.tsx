@@ -7,6 +7,7 @@ import {
   requestPasswordReset,
   type ResetRequestState,
 } from "@/app/forgot-password/actions";
+import { rememberPendingEmail } from "@/lib/pending-email";
 
 // Lives here rather than beside the action: a "use server" module may only
 // export async functions, so a plain object exported from actions.ts crashes
@@ -80,6 +81,14 @@ export function ResetRequestForm() {
 // of answering identically is undone by a screen that says "sent!" only when
 // the address is real.
 function CheckYourInbox({ email }: { email: string }) {
+  // Left for the sign-in form to pick up. Finishing the reset on a phone
+  // cannot sign this browser in — the session is a cookie, and cookies do not
+  // travel between devices — so the least this can do is not ask for the
+  // address again on the way back.
+  useEffect(() => {
+    rememberPendingEmail(email);
+  }, [email]);
+
   return (
     <div className="mt-8 flex flex-col gap-5">
       <div className="rounded-2xl border border-line bg-sand/60 px-5 py-6">
