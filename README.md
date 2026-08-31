@@ -43,9 +43,15 @@ The SMTP password is read from the shell rather than stored here, so it has to
 be set for the push to carry it:
 
 ```bash
-export RESEND_SMTP_PASSWORD=...   # the Resend API key
+read -rs RESEND_SMTP_PASSWORD && export RESEND_SMTP_PASSWORD
 supabase config push
 ```
+
+`read -rs` waits for the Resend API key and echoes nothing, which keeps it out
+of the shell history. Do not write the key on the `export` line: a placeholder
+pasted verbatim is a valid password as far as the push is concerned, and it
+will replace the working one without complaint. Auth email then fails silently
+— Supabase accepts the config, and the mail simply never arrives.
 
 It needs an access token, from `supabase login` or `SUPABASE_ACCESS_TOKEN`.
 That token can change auth settings on the live project, which is why this is
