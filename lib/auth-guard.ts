@@ -18,6 +18,10 @@ import { createServerSupabase } from "./supabase-server";
 // `returnTo` is where they should land once they succeed. Callers pass their
 // own path, because a Server Component cannot ask which URL it is being
 // rendered for.
+//
+// The client comes back with the member: it is bound to this request's cookies,
+// and building a second one to run the next query would mean a second set of
+// cookie reads for the same session.
 export async function requireMember(returnTo: string) {
   const supabase = await createServerSupabase();
 
@@ -29,5 +33,5 @@ export async function requireMember(returnTo: string) {
     redirect(`/signin?next=${encodeURIComponent(returnTo)}`);
   }
 
-  return user;
+  return { user, supabase };
 }
