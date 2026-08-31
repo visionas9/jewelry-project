@@ -427,3 +427,72 @@ enabled = true
 # declarative_schema_path = "./database"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# ---------------------------------------------------------------------------
+# The hosted project.
+#
+# Everything above configures the stack that runs on this machine. This block
+# overrides it for the live project, and `supabase config push` sends the
+# result there — the same way `db push` sends migrations. Without it the
+# dashboard is a second, invisible source of truth, which is how the reset
+# email kept going out with the old template long after this repo had the new
+# one.
+#
+# Only the values that genuinely differ belong here. Everything else — the
+# email templates, the password length, the OTP lifetime — is inherited from
+# above on purpose, so there is one copy of it and not two.
+#
+# Read the note in README.md before the first push: this overwrites the auth
+# settings in the dashboard rather than merging with them.
+# ---------------------------------------------------------------------------
+[remotes.production]
+project_id = "jgbzefpspppqwafexnen"
+
+[remotes.production.auth]
+# What the shop is actually called. Supabase falls back to this whenever an
+# app asks to be redirected somewhere that is not on the list below.
+site_url = "https://ishindenshinstore.com"
+
+# Where an auth email is allowed to send someone back to. The middle entry is
+# what lets a Vercel preview test a signup or a reset against itself instead of
+# bouncing the visitor to production; the last one is for running the app on
+# this machine against the live project.
+additional_redirect_urls = [
+  "https://ishindenshinstore.com/**",
+  "https://ishin-denshin-git-*-visionas9s-projects.vercel.app/**",
+  "http://localhost:3000/**",
+]
+
+[remotes.production.auth.email]
+# The one setting that must not be inherited. It is off locally so a test
+# member can sign in the moment they are created; off in production would mean
+# anybody could open an account on an address they do not own.
+enable_confirmations = true
+
+# One a minute per address, rather than the one a second the local stack allows
+# for the sake of not waiting during a test.
+max_frequency = "60s"
+
+[remotes.production.auth.email.smtp]
+# Resend, which is what makes these emails arrive from the shop's own domain
+# rather than from Supabase's shared sender. Described here because a push
+# replaces the project's auth settings rather than merging into them: leave
+# this out and the next push quietly drops the shop back to Supabase's
+# built-in mailer.
+#
+# The local stack has no equivalent — it catches mail in Mailpit instead, which
+# is why the [auth.email.smtp] block far above stays commented out.
+enabled = true
+host = "smtp.resend.com"
+port = 587
+user = "resend"
+# Never the key itself. `env()` is read from the shell at push time, so the
+# secret lives in the password manager and not in this repo.
+pass = "env(RESEND_SMTP_PASSWORD)"
+admin_email = "merhaba@ishindenshinstore.com"
+sender_name = "ishin denshin"
+
+[remotes.production.auth.rate_limit]
+# Supabase's own default for a project with its own SMTP. The local stack sets
+# this to 2, which exists to make the limit easy to hit on purpose.
+email_sent = 30

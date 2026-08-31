@@ -17,6 +17,46 @@ NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 ```
 
+## Project settings
+
+`supabase/config.toml` describes the hosted project as well as the local one.
+The `[remotes.production]` block at the bottom holds the handful of values that
+differ — the site URL, the redirect allow list, and the settings that are
+deliberately relaxed for local testing — and everything else is shared.
+
+```bash
+supabase link --project-ref jgbzefpspppqwafexnen
+supabase config push
+```
+
+Run it after changing anything under `[auth]`, including the email templates.
+Nothing in the dashboard is picked up by this repo, so a value changed there
+and not here is lost on the next push.
+
+**Read before the first push.** This replaces the project's auth settings
+rather than merging into them: whatever the dashboard holds and this file does
+not describe is overwritten. Check the auth pages against this file once,
+before the first run — after that the file is the source of truth and the
+dashboard is a viewer.
+
+The SMTP password is read from the shell rather than stored here, so it has to
+be set for the push to carry it:
+
+```bash
+read -rs RESEND_SMTP_PASSWORD && export RESEND_SMTP_PASSWORD
+supabase config push
+```
+
+`read -rs` waits for the Resend API key and echoes nothing, which keeps it out
+of the shell history. Do not write the key on the `export` line: a placeholder
+pasted verbatim is a valid password as far as the push is concerned, and it
+will replace the working one without complaint. Auth email then fails silently
+— Supabase accepts the config, and the mail simply never arrives.
+
+It needs an access token, from `supabase login` or `SUPABASE_ACCESS_TOKEN`.
+That token can change auth settings on the live project, which is why this is
+a command someone runs on purpose rather than something CI does on a merge.
+
 ## Auth emails and where their links point
 
 The confirmation and reset emails build their link from the address the app
