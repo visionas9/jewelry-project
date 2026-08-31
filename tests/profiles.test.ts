@@ -88,6 +88,13 @@ describe("one member cannot reach another", () => {
 
     // anon is granted nothing on this table, so it is stopped a layer earlier
     // than the policies — at the table itself.
+    //
+    // This assertion passes locally whether or not the grant is right, which is
+    // how the hosted project came to differ: Supabase's default privileges on
+    // the public schema had handed anon select on profiles, and a signed-out
+    // read there came back empty instead of refused. 0004 revokes it. Nothing
+    // reachable from this suite can catch that drift — only a query against the
+    // real project can, which is why the check lives in the PR notes too.
     expect(error?.code).toBe("42501");
   });
 });
