@@ -95,13 +95,27 @@ function CheckYourInbox({ email }: { email: string }) {
         <p className="mt-3 text-sm leading-relaxed text-muted">
           E-posta birkaç dakika içinde gelmezse spam klasörünüze bakın.
         </p>
+        {/* The part that is easy to get wrong, and the same trap the sign-up
+            screen warns about: the link can be opened on a phone, but the
+            session it creates belongs to the phone. The new password works
+            everywhere immediately; this browser still has to be told about
+            it. */}
+        <p className="mt-3 text-sm leading-relaxed text-muted">
+          Bağlantıyı başka bir cihazda açabilirsiniz. Yeni şifreniz her yerde
+          geçerli olur, ancak bu tarayıcıda giriş yapmanız gerekir.
+        </p>
       </div>
 
+      {/* Points at the account page, which is where the device that opened the
+          link ends up. On this browser it lands on the sign-in form first and
+          comes back here afterwards, so one button covers both: the person who
+          reset on this browser, and the person who reset on their phone and
+          came back to this tab. */}
       <Link
-        href="/signin"
-        className="rounded-full border border-line px-7 py-3 text-center text-sm transition-colors hover:border-ink"
+        href="/account"
+        className="rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-brass"
       >
-        Giriş sayfasına dön
+        Hesabıma git
       </Link>
     </div>
   );
