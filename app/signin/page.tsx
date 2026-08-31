@@ -58,8 +58,7 @@ async function GuardNotice({
       role="status"
       className="mt-6 rounded-2xl border border-line bg-sand/60 px-5 py-4 text-sm leading-relaxed text-muted"
     >
-      Devam etmek için bu tarayıcıda giriş yapmanız gerekiyor. İşlemi başka bir
-      cihazda tamamladıysanız yeni şifreniz burada da geçerlidir.
+      Devam etmek için bu tarayıcıda giriş yapmanız gerekiyor.
     </p>
   );
 }
