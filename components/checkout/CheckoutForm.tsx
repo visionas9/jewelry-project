@@ -92,6 +92,11 @@ export function CheckoutForm() {
   const error = state && "message" in state ? state.message : null;
   const blocked = summary.problems.length > 0;
 
+  // The action resolves the moment the order exists, but the page it leads to
+  // has to load before anything changes on screen. Without this the button
+  // springs back to "Siparişi tamamla" and the wait looks like a dead click.
+  const placed = state !== null && "code" in state;
+
   return (
     <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_22rem]">
       <form action={formAction} className="flex flex-col gap-5" noValidate>
@@ -136,10 +141,16 @@ export function CheckoutForm() {
 
         <button
           type="submit"
-          disabled={pending || blocked}
+          disabled={pending || placed || blocked}
           className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
         >
-          {pending ? <Busy label="Siparişiniz alınıyor…" /> : "Siparişi tamamla"}
+          {placed ? (
+            <Busy label="Siparişiniz alındı, yönlendiriliyorsunuz…" />
+          ) : pending ? (
+            <Busy label="Siparişiniz alınıyor…" />
+          ) : (
+            "Siparişi tamamla"
+          )}
         </button>
 
         <p className="text-sm leading-relaxed text-muted">
