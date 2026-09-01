@@ -13,6 +13,8 @@ import {
   type CartLine,
   type CartSummary,
 } from "@/lib/orders";
+import { buyerOrderEmail, shopOrderEmail } from "@/lib/order-emails";
+import { sendEmail, SHOP_EMAIL } from "@/lib/send-email";
 import { createServerSupabase } from "@/lib/supabase-server";
 
 // The cart lives in the visitor's browser, so the server cannot see it until
@@ -122,7 +124,62 @@ export async function placeOrder(
   // Stock has moved, so every page that quotes it is stale.
   revalidatePath("/", "layout");
 
+  await announce(supabase, code, values);
+
   // No redirect here on purpose: the browser still has to empty the cart, and
   // it must not do that until the order is known to exist.
   return { status: "placed", code };
+}
+
+// Tells the shop and the buyer that an order exists.
+//
+// Everything here is after the fact: the order is written and paid for or not
+// regardless. So nothing it does may throw — a mail service having a bad
+// afternoon must not turn a placed order into an error on the buyer's screen.
+async function announce(
+  supabase: Awaited<ReturnType<typeof createServerSupabase>>,
+  code: string,
+  values: Record<DeliveryField, string>
+) {
+  try {
+    const { data: order } = await supabase
+      .from("orders")
+      .select("total, order_items (quantity, unit_price, products (name))")
+      .eq("code", code)
+      .maybeSingle();
+
+    if (!order) return;
+
+    const lines = (order.order_items ?? []).map((line) => {
+      const product = Array.isArray(line.products) ? line.products[0] : line.products;
+
+      return {
+        name: (product as { name?: string } | null)?.name ?? "Ürün",
+        quantity: line.quantity,
+        unitPrice: Number(line.unit_price),
+      };
+    });
+
+    const details = {
+      code,
+      total: Number(order.total),
+      fullName: values.fullName,
+      phone: values.phone,
+      city: values.city,
+      district: values.district,
+      address: values.address,
+      lines,
+    };
+
+    const { data: user } = await supabase.auth.getUser();
+
+    await Promise.all([
+      sendEmail({ to: SHOP_EMAIL, ...shopOrderEmail(details) }),
+      user.user?.email
+        ? sendEmail({ to: user.user.email, ...buyerOrderEmail(details) })
+        : Promise.resolve("skipped" as const),
+    ]);
+  } catch (error) {
+    console.error(`[email] could not announce ${code}`, error);
+  }
 }
