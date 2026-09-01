@@ -8,6 +8,7 @@ import { OrderHistory } from "@/components/account/OrderHistory";
 import { requireMember } from "@/lib/auth-guard";
 import { listOrders } from "@/lib/orders";
 import { getDisplayName } from "@/lib/profiles";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export const metadata: Metadata = {
   // Nothing here is meant for a search result, and there is nothing a
@@ -111,12 +112,12 @@ async function Account() {
         </Link>
 
         <form action={signOut}>
-          <button
-            type="submit"
-            className="w-full rounded-full border border-line px-7 py-3 text-sm transition-colors hover:border-ink sm:w-auto"
+          <SubmitButton
+            pendingLabel="Çıkış yapılıyor…"
+            className="w-full rounded-full border border-line px-7 py-3 text-sm transition-colors hover:border-ink sm:w-auto disabled:text-muted"
           >
             Çıkış yap
-          </button>
+          </SubmitButton>
         </form>
       </div>
     </>

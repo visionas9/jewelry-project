@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 
 import {
+  DELIVERY_FIELDS,
+  validateDelivery,
+  type DeliveryField,
+} from "@/lib/delivery";
+import {
   priceCart,
   turkishOrderError,
   type CartLine,
@@ -39,26 +44,26 @@ export async function reviewCart(cart: unknown): Promise<CartSummary> {
   return priceCart(readCart(cart));
 }
 
-// One type for both endings: a sentence to show, or the code of an order that
-// now exists. The browser has work to do on success — emptying the cart — so
-// the action reports back rather than redirecting out from under it.
+// One type for both endings: what went wrong and what was typed, or the code
+// of an order that now exists. The browser has work to do on success — emptying
+// the cart — so the action reports back rather than redirecting out from under
+// it.
 export type CheckoutState =
-  | { message: string }
-  | { code: string }
+  | {
+      status: "error";
+      // Beside the field it belongs to. A single sentence at the top of a long
+      // form is a sentence nobody sees.
+      fieldErrors: Partial<Record<DeliveryField, string>>;
+      // Anything not about one field: stock that ran out, a bracelet pulled
+      // from the shop.
+      message?: string;
+      // Echoed back so a rejected submit does not empty the form. React resets
+      // an uncontrolled form after an action, so the values have to come from
+      // somewhere.
+      values: Record<DeliveryField, string>;
+    }
+  | { status: "placed"; code: string }
   | null;
-
-// The delivery details, as they arrive. Trimmed rather than trusted: a form is
-// a public POST endpoint and the browser's `required` is a courtesy to the
-// person filling it in, not a check.
-const FIELDS = ["fullName", "phone", "city", "district", "address"] as const;
-
-const LABELS: Record<(typeof FIELDS)[number], string> = {
-  fullName: "Ad soyad",
-  phone: "Telefon",
-  city: "İl",
-  district: "İlçe",
-  address: "Adres",
-};
 
 export async function placeOrder(
   cart: unknown,
@@ -66,28 +71,27 @@ export async function placeOrder(
   formData: FormData
 ): Promise<CheckoutState> {
   const values = Object.fromEntries(
-    FIELDS.map((field) => [field, String(formData.get(field) ?? "").trim()])
-  ) as Record<(typeof FIELDS)[number], string>;
+    DELIVERY_FIELDS.map((field) => [
+      field,
+      String(formData.get(field) ?? "").trim(),
+    ])
+  ) as Record<DeliveryField, string>;
 
-  const missing = FIELDS.find((field) => values[field] === "");
+  const fieldErrors = validateDelivery(values);
 
-  if (missing) {
-    return { message: `${LABELS[missing]} alanını doldurun.` };
-  }
-
-  // Turkish mobile numbers are ten digits after the leading zero, and people
-  // write them with spaces, dashes and brackets. The digits are what matters;
-  // the shape they were typed in is not.
-  const digits = values.phone.replace(/\D/g, "");
-
-  if (digits.length < 10) {
-    return { message: "Telefon numaranızı kontrol edin." };
+  if (Object.keys(fieldErrors).length > 0) {
+    return { status: "error", fieldErrors, values };
   }
 
   const items = readCart(cart);
 
   if (items.length === 0) {
-    return { message: "Sepetiniz boş görünüyor." };
+    return {
+      status: "error",
+      fieldErrors: {},
+      message: "Sepetiniz boş görünüyor.",
+      values,
+    };
   }
 
   const supabase = await createServerSupabase();
@@ -107,7 +111,12 @@ export async function placeOrder(
   });
 
   if (error || typeof code !== "string") {
-    return { message: turkishOrderError(error) };
+    return {
+      status: "error",
+      fieldErrors: {},
+      message: turkishOrderError(error),
+      values,
+    };
   }
 
   // Stock has moved, so every page that quotes it is stale.
@@ -115,5 +124,5 @@ export async function placeOrder(
 
   // No redirect here on purpose: the browser still has to empty the cart, and
   // it must not do that until the order is known to exist.
-  return { code };
+  return { status: "placed", code };
 }

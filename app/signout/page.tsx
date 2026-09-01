@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { signOut } from "./actions";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 
 export const metadata: Metadata = {
   title: "Çıkış Yap",
@@ -28,12 +29,12 @@ export default function SignOutPage() {
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <form action={signOut}>
-          <button
-            type="submit"
-            className="w-full rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass sm:w-auto"
+          <SubmitButton
+            pendingLabel="Çıkış yapılıyor…"
+            className="w-full rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass sm:w-auto disabled:text-muted"
           >
             Çıkış yap
-          </button>
+          </SubmitButton>
         </form>
 
         <Link

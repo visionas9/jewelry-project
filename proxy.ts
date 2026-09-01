@@ -4,12 +4,29 @@ import { refreshSession } from "@/lib/supabase-proxy";
 
 // Next 16 renamed `middleware.ts` to `proxy.ts`. Same execution point, same
 // behaviour — a file named middleware.ts here would simply never run.
+// Pages that belong to one member. Each guards itself as well — this list only
+// decides where a signed-out visitor is sent, not what they may see.
+const MEMBERS_ONLY = ["/account", "/checkout", "/orders"];
+
 export async function proxy(request: NextRequest) {
   const rescued = strayAuthLink(request);
 
   if (rescued) return NextResponse.redirect(rescued);
 
-  return refreshSession(request);
+  const { response, user } = await refreshSession(request);
+  const { pathname } = request.nextUrl;
+
+  // Sent away before the page renders. The guard inside the page would do it
+  // too, but only after its shell had already painted — long enough to show a
+  // checkout page to somebody who is about to be asked to sign in.
+  if (!user && MEMBERS_ONLY.some((path) => pathname.startsWith(path))) {
+    const signin = new URL("/signin", request.url);
+    signin.searchParams.set("next", pathname);
+
+    return NextResponse.redirect(signin);
+  }
+
+  return response;
 }
 
 // A verification link that arrived at the site root instead of its route.

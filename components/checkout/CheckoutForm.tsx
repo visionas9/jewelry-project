@@ -13,6 +13,8 @@ import { formatPrice } from "@/lib/format";
 import type { CartSummary } from "@/lib/orders";
 import { useCartHydrated, useCartStore } from "@/lib/stores/cart";
 
+import { Spinner } from "@/components/ui/Spinner";
+
 const FIELD =
   "w-full appearance-none rounded-2xl border border-line bg-cream px-4 py-3 text-base outline-none transition-colors placeholder:text-muted focus:border-ink";
 
@@ -55,11 +57,21 @@ export function CheckoutForm() {
   // Emptied only once the order is known to exist. Clearing before the action
   // returns would lose somebody's cart to a network error.
   useEffect(() => {
-    if (state && "code" in state) {
+    if (state?.status === "placed") {
       clear();
       router.push(`/orders/${state.code}`);
     }
   }, [state, clear, router]);
+
+  // Straight to the first thing that needs fixing. On a form this long the
+  // problem is usually above or below the fold, not where they are looking.
+  useEffect(() => {
+    if (state?.status !== "error") return;
+
+    const first = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+    first?.focus();
+    first?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [state]);
 
   if (!hydrated || !summary) {
     return (
@@ -87,23 +99,26 @@ export function CheckoutForm() {
     );
   }
 
-  const error = state && "message" in state ? state.message : null;
+  const failed = state?.status === "error" ? state : null;
   const blocked = summary.problems.length > 0;
+
+  // The action resolves the moment the order exists, but the page it leads to
+  // has to load before anything changes on screen. Without this the button
+  // springs back to "Siparişi tamamla" and the wait looks like a dead click.
+  const placed = state?.status === "placed";
 
   return (
     <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_22rem]">
       <form action={formAction} className="flex flex-col gap-5" noValidate>
-        <p
-          role="alert"
-          aria-live="polite"
-          className={`text-sm text-brass ${error ? "" : "sr-only"}`}
-        >
-          {error ?? ""}
-        </p>
-
         <h2 className="font-display text-xl">Teslimat bilgileri</h2>
 
-        <Field name="fullName" label="Ad soyad" autoComplete="name" />
+        <Field
+          name="fullName"
+          label="Ad soyad"
+          autoComplete="name"
+          defaultValue={failed?.values.fullName}
+          error={failed?.fieldErrors.fullName}
+        />
         <Field
           name="phone"
           label="Telefon"
@@ -111,33 +126,59 @@ export function CheckoutForm() {
           autoComplete="tel"
           placeholder="05XX XXX XX XX"
           hint="Kargo şirketi size bu numaradan ulaşır."
+          defaultValue={failed?.values.phone}
+          error={failed?.fieldErrors.phone}
         />
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field name="city" label="İl" autoComplete="address-level1" />
-          <Field name="district" label="İlçe" autoComplete="address-level2" />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label htmlFor="address" className="text-sm text-muted">
-            Açık adres
-          </label>
-          <textarea
-            id="address"
-            name="address"
-            rows={3}
-            required
-            autoComplete="street-address"
-            className={FIELD}
+          <Field
+            name="city"
+            label="İl"
+            autoComplete="address-level1"
+            defaultValue={failed?.values.city}
+            error={failed?.fieldErrors.city}
+          />
+          <Field
+            name="district"
+            label="İlçe"
+            autoComplete="address-level2"
+            defaultValue={failed?.values.district}
+            error={failed?.fieldErrors.district}
           />
         </div>
 
+        <Field
+          name="address"
+          label="Açık adres"
+          multiline
+          autoComplete="street-address"
+          defaultValue={failed?.values.address}
+          error={failed?.fieldErrors.address}
+        />
+
+        {/* Anything not about one field sits where the button is, because that
+            is where somebody is looking when they press it. */}
+        {failed?.message ? (
+          <p
+            role="alert"
+            className="rounded-2xl border border-brass/40 bg-brass/10 px-4 py-3 text-sm leading-relaxed text-brass"
+          >
+            {failed.message}
+          </p>
+        ) : null}
+
         <button
           type="submit"
-          disabled={pending || blocked}
+          disabled={pending || placed || blocked}
           className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
         >
-          {pending ? "Siparişiniz alınıyor…" : "Siparişi tamamla"}
+          {placed ? (
+            <Busy label="Siparişiniz alındı, yönlendiriliyorsunuz…" />
+          ) : pending ? (
+            <Busy label="Siparişiniz alınıyor…" />
+          ) : (
+            "Siparişi tamamla"
+          )}
         </button>
 
         <p className="text-sm leading-relaxed text-muted">
@@ -208,30 +249,64 @@ function Field({
   name,
   label,
   hint,
+  error,
+  multiline,
   ...input
 }: {
   name: string;
   label: string;
   hint?: string;
+  error?: string;
+  multiline?: boolean;
 } & React.InputHTMLAttributes<HTMLInputElement>) {
+  const hintId = hint ? `${name}-hint` : null;
+  const errorId = error ? `${name}-error` : null;
+  const described = [errorId, hintId].filter(Boolean).join(" ") || undefined;
+
+  const shared = {
+    id: name,
+    name,
+    required: true,
+    "aria-invalid": error ? true : undefined,
+    "aria-describedby": described,
+    className: `${FIELD} ${error ? "border-brass" : ""}`,
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <label htmlFor={name} className="text-sm text-muted">
         {label}
       </label>
-      <input
-        id={name}
-        name={name}
-        required
-        aria-describedby={hint ? `${name}-hint` : undefined}
-        className={FIELD}
-        {...input}
-      />
+
+      {multiline ? (
+        <textarea rows={3} defaultValue={input.defaultValue} {...shared} />
+      ) : (
+        <input {...shared} {...input} />
+      )}
+
+      {/* Under the field, not at the top of the form: the message has to be
+          where the thing it is about is. */}
+      {error ? (
+        <p id={errorId!} role="alert" className="text-sm text-brass">
+          {error}
+        </p>
+      ) : null}
+
       {hint ? (
-        <p id={`${name}-hint`} className="text-sm text-muted">
+        <p id={hintId!} className="text-sm text-muted">
           {hint}
         </p>
       ) : null}
     </div>
+  );
+}
+
+// The label already changes; the ring says the wait is the site's, not theirs.
+function Busy({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <Spinner />
+      {label}
+    </span>
   );
 }

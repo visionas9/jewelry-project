@@ -8,6 +8,8 @@ import {
 } from "@/app/reset-password/actions";
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth-errors";
 
+import { Spinner } from "@/components/ui/Spinner";
+
 const FIELD =
   "w-full appearance-none rounded-2xl border border-line bg-cream px-4 py-3 text-base outline-none transition-colors placeholder:text-muted focus:border-ink";
 
@@ -61,8 +63,18 @@ export function NewPasswordForm() {
         disabled={pending}
         className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
       >
-        {pending ? "Kaydediliyor…" : "Şifremi güncelle"}
+        {pending ? <Busy label="Kaydediliyor…" /> : "Şifremi güncelle"}
       </button>
     </form>
+  );
+}
+
+// The label already changes; the ring says the wait is the site's, not theirs.
+function Busy({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <Spinner />
+      {label}
+    </span>
   );
 }

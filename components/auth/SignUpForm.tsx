@@ -12,6 +12,8 @@ import {
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth-errors";
 import { rememberPendingEmail } from "@/lib/pending-email";
 
+import { Spinner } from "@/components/ui/Spinner";
+
 // Lives here rather than beside the action: a "use server" module may only
 // export async functions, so a plain object exported from actions.ts crashes
 // the route at render time.
@@ -91,7 +93,7 @@ export function SignUpForm() {
         disabled={pending}
         className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
       >
-        {pending ? "Gönderiliyor…" : "Hesap oluştur"}
+        {pending ? <Busy label="Gönderiliyor…" /> : "Hesap oluştur"}
       </button>
 
       <p className="text-center text-sm text-muted">
@@ -157,7 +159,7 @@ function CheckYourInbox({ email }: { email: string }) {
           disabled={pending}
           className="rounded-full border border-line px-7 py-3 text-sm transition-colors hover:border-ink disabled:text-muted"
         >
-          {pending ? "Gönderiliyor…" : "E-postayı tekrar gönder"}
+          {pending ? <Busy label="Gönderiliyor…" /> : "E-postayı tekrar gönder"}
         </button>
 
         <p
@@ -171,5 +173,15 @@ function CheckYourInbox({ email }: { email: string }) {
         </p>
       </form>
     </div>
+  );
+}
+
+// The label already changes; the ring says the wait is the site's, not theirs.
+function Busy({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <Spinner />
+      {label}
+    </span>
   );
 }

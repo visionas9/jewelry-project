@@ -10,9 +10,10 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "./supabase-env";
 // perfectly good, but nothing ever spends it. Doing it here means every route
 // gets a fresh session without a single page having to think about expiry.
 //
-// Refresh only. No redirects, no route guarding, no "is this person allowed"
-// — that lives in RLS, where the database enforces it whether the request came
-// through a page, a Server Action, or a raw fetch with the anon key.
+// Refreshing is all this does. It reports who the session belongs to so the
+// proxy can send a signed-out visitor somewhere useful before a page renders,
+// but that is a courtesy, not a guard: RLS and the page's own check are what
+// actually enforce access.
 export async function refreshSession(request: NextRequest) {
   // Cookies have to land in two places. The request copy is what the page we
   // are about to render will read; the response copy is what the browser
@@ -38,11 +39,11 @@ export async function refreshSession(request: NextRequest) {
     },
   });
 
-  // The call itself is the point: getUser verifies the token with Supabase and
-  // refreshes it when it has expired, which is what triggers setAll above. The
-  // returned user is discarded on purpose — deciding anything with it here
-  // would be the authorization this deliberately does not do.
-  await supabase.auth.getUser();
+  // getUser verifies the token with Supabase and refreshes it when it has
+  // expired, which is what triggers setAll above.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return response;
+  return { response, user };
 }
