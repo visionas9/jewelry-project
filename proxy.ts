@@ -13,8 +13,26 @@ export async function proxy(request: NextRequest) {
 
   if (rescued) return NextResponse.redirect(rescued);
 
-  const { response, user } = await refreshSession(request);
+  const { response, user, supabase } = await refreshSession(request);
   const { pathname } = request.nextUrl;
+
+  // The panel does not admit it exists. Anybody who is not the administrator
+  // gets the same 404 a made-up path would give — signed out, signed in, or
+  // guessing. A redirect to sign-in would confirm there is something here.
+  //
+  // Identity only, not the second factor: /admin/security has to be reachable
+  // with a password alone, or a lost phone locks the one administrator out of
+  // the page that fixes it. Everything past that door asks for aal2, and the
+  // database refuses regardless of what any page decides.
+  if (pathname.startsWith("/admin")) {
+    if (!user) return notFound(request);
+
+    const { data: isAdmin } = await supabase.rpc("is_admin_account");
+
+    if (!isAdmin) return notFound(request);
+
+    return response;
+  }
 
   // Sent away before the page renders. The guard inside the page would do it
   // too, but only after its shell had already painted — long enough to show a
@@ -56,6 +74,13 @@ function strayAuthLink(request: NextRequest): URL | null {
   url.pathname = type === "recovery" ? "/auth/reset" : "/auth/confirm";
 
   return url;
+}
+
+// Next's own 404, rendered at the path that was asked for.
+function notFound(request: NextRequest) {
+  return NextResponse.rewrite(new URL("/not-found", request.url), {
+    status: 404,
+  });
 }
 
 export const config = {

@@ -1,5 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+import { totpCode } from "./totp";
+
 // Helpers for tests that need real signed-in members.
 //
 // Two kinds of client appear here and the difference matters. The admin client
@@ -65,4 +67,34 @@ export async function createMember(
   }
 
   return { id: data.user.id, email, client };
+}
+
+/**
+ * Makes a member the administrator, with a second factor already verified.
+ *
+ * Both halves matter: the row says which account, and the factor is what makes
+ * is_admin() true — a session that has only typed a password is deliberately
+ * not enough.
+ */
+export async function makeAdmin(member: Member): Promise<void> {
+  const { error } = await adminClient().from("admins").insert({ id: member.id });
+
+  if (error) throw new Error(`Could not grant admin: ${error.message}`);
+
+  const { data: factor, error: enrolError } = await member.client.auth.mfa.enroll({
+    factorType: "totp",
+  });
+
+  if (enrolError || !factor) {
+    throw new Error(`Could not enrol a factor: ${enrolError?.message}`);
+  }
+
+  const { error: verifyError } = await member.client.auth.mfa.challengeAndVerify({
+    factorId: factor.id,
+    code: totpCode(factor.totp.secret),
+  });
+
+  if (verifyError) {
+    throw new Error(`Could not verify the factor: ${verifyError.message}`);
+  }
 }
