@@ -48,6 +48,10 @@ export async function sendEmail(mail: {
       return "failed";
     }
 
+    // The recipient is the part that goes wrong quietly — a bounced address
+    // looks the same as a delivered one from here.
+    console.info(`[email] sent: ${mail.subject} → ${mail.to}`);
+
     return "sent";
   } catch (error) {
     // A mail that does not go out is not a reason to lose an order.
