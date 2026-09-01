@@ -39,19 +39,18 @@ not describe is overwritten. Check the auth pages against this file once,
 before the first run — after that the file is the source of truth and the
 dashboard is a viewer.
 
-The SMTP password is read from the shell rather than stored here, so it has to
-be set for the push to carry it:
+The SMTP password is not stored here. `config.toml` names it, and the CLI
+resolves it from `.env.local` — which is gitignored, so the key stays on the
+machine doing the pushing:
 
-```bash
-read -rs RESEND_SMTP_PASSWORD && export RESEND_SMTP_PASSWORD
-supabase config push
+```
+SUPABASE_SMTP_PASSWORD=the-resend-key
 ```
 
-`read -rs` waits for the Resend API key and echoes nothing, which keeps it out
-of the shell history. Do not write the key on the `export` line: a placeholder
-pasted verbatim is a valid password as far as the push is concerned, and it
-will replace the working one without complaint. Auth email then fails silently
-— Supabase accepts the config, and the mail simply never arrives.
+Without it the push sends an empty password and auth email stops, quietly:
+Supabase accepts the config and the mail simply never arrives. The diff printed
+before the push is the check — if the `pass = "hash:…"` line changes, it is
+about to replace a working key with something else.
 
 It needs an access token, from `supabase login` or `SUPABASE_ACCESS_TOKEN`.
 That token can change auth settings on the live project, which is why this is
