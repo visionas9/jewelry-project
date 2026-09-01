@@ -5,10 +5,16 @@ import "server-only";
 // Resend's HTTP API rather than their SDK: one fetch, one less dependency to
 // keep current.
 
-// The address Resend is verified to send from, and the one the shop reads.
-export const SHOP_EMAIL = "merhaba@ishindenshinstore.com";
+// The address Resend is verified to send from. Sending from it needs no
+// mailbox — only a verified domain — which is why it works today.
+const FROM_EMAIL = "merhaba@ishindenshinstore.com";
 
-const FROM = `ishin denshin <${SHOP_EMAIL}>`;
+const FROM = `ishin denshin <${FROM_EMAIL}>`;
+
+// Where order notifications are read. Separate from FROM_EMAIL because that
+// address can send but not receive: the domain has no MX record, so mail to it
+// bounces. Set ORDER_EMAIL to a real inbox until it has one.
+export const ORDER_EMAIL = process.env.ORDER_EMAIL || FROM_EMAIL;
 
 export type SendResult = "sent" | "skipped" | "failed";
 

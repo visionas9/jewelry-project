@@ -14,7 +14,7 @@ import {
   type CartSummary,
 } from "@/lib/orders";
 import { buyerOrderEmail, shopOrderEmail } from "@/lib/order-emails";
-import { sendEmail, SHOP_EMAIL } from "@/lib/send-email";
+import { ORDER_EMAIL, sendEmail } from "@/lib/send-email";
 import { createServerSupabase } from "@/lib/supabase-server";
 
 // The cart lives in the visitor's browser, so the server cannot see it until
@@ -174,7 +174,7 @@ async function announce(
     const { data: user } = await supabase.auth.getUser();
 
     await Promise.all([
-      sendEmail({ to: SHOP_EMAIL, ...shopOrderEmail(details) }),
+      sendEmail({ to: ORDER_EMAIL, ...shopOrderEmail(details) }),
       user.user?.email
         ? sendEmail({ to: user.user.email, ...buyerOrderEmail(details) })
         : Promise.resolve("skipped" as const),
