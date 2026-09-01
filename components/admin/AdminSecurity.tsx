@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Spinner } from "@/components/ui/Spinner";
 import { createBrowserSupabase } from "@/lib/supabase-browser";
 
-type Enrolling = { factorId: string; qr: string; secret: string };
+type Enrolling = { factorId: string; qr: string };
 
 const FIELD =
   "w-full rounded-2xl border border-line bg-cream px-4 py-3 text-base tracking-[0.3em] outline-none focus:border-ink";
@@ -60,11 +60,7 @@ export function AdminSecurity({
       return;
     }
 
-    setEnrolling({
-      factorId: data.id,
-      qr: data.totp.qr_code,
-      secret: data.totp.secret,
-    });
+    setEnrolling({ factorId: data.id, qr: data.totp.qr_code });
   }
 
   async function submitCode(factorId: string) {
@@ -157,10 +153,6 @@ export function AdminSecurity({
             className="mt-4 h-44 w-44"
           />
 
-          <p className="mt-3 break-all text-xs text-muted">
-            Okutamıyorsanız: {enrolling.secret}
-          </p>
-
           <input
             inputMode="numeric"
             autoComplete="one-time-code"
@@ -179,7 +171,7 @@ export function AdminSecurity({
             {busy ? <Busy label="Doğrulanıyor…" /> : "Cihazı doğrula"}
           </button>
         </section>
-      ) : (
+      ) : verified && aal !== "aal2" ? null : (
         <button
           type="button"
           disabled={busy}
