@@ -6,6 +6,8 @@ import { useActionState, useEffect, useRef } from "react";
 import { signIn, type SignInState } from "@/app/signin/actions";
 import { takePendingEmail } from "@/lib/pending-email";
 
+import { Spinner } from "@/components/ui/Spinner";
+
 const FIELD =
   "w-full appearance-none rounded-2xl border border-line bg-cream px-4 py-3 text-base outline-none transition-colors placeholder:text-muted focus:border-ink";
 
@@ -112,7 +114,7 @@ export function SignInForm({ children }: { children?: React.ReactNode }) {
         disabled={pending}
         className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
       >
-        {pending ? "Giriş yapılıyor…" : "Giriş yap"}
+        {pending ? <Busy label="Giriş yapılıyor…" /> : "Giriş yap"}
       </button>
 
       <p className="text-center text-sm text-muted">
@@ -122,5 +124,15 @@ export function SignInForm({ children }: { children?: React.ReactNode }) {
         </Link>
       </p>
     </form>
+  );
+}
+
+// The label already changes; the ring says the wait is the site's, not theirs.
+function Busy({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <Spinner />
+      {label}
+    </span>
   );
 }

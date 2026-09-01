@@ -9,6 +9,8 @@ import {
 } from "@/app/forgot-password/actions";
 import { rememberPendingEmail } from "@/lib/pending-email";
 
+import { Spinner } from "@/components/ui/Spinner";
+
 // Lives here rather than beside the action: a "use server" module may only
 // export async functions, so a plain object exported from actions.ts crashes
 // the route at render time.
@@ -63,7 +65,7 @@ export function ResetRequestForm() {
         disabled={pending}
         className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
       >
-        {pending ? "Gönderiliyor…" : "Sıfırlama bağlantısı gönder"}
+        {pending ? <Busy label="Gönderiliyor…" /> : "Sıfırlama bağlantısı gönder"}
       </button>
 
       <p className="text-center text-sm text-muted">
@@ -152,5 +154,15 @@ function DoneButton() {
     >
       {LABEL}
     </Link>
+  );
+}
+
+// The label already changes; the ring says the wait is the site's, not theirs.
+function Busy({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <Spinner />
+      {label}
+    </span>
   );
 }
