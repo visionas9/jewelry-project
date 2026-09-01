@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { supabase as anonymous } from "@/lib/supabase";
-import { adminClient, createMember, type Member } from "./support/accounts";
+import { createMember, makeAdmin, type Member } from "./support/accounts";
 import { createProduct } from "./support/products";
 
 // The shop has one administrator. These check what she can see that a member
@@ -16,9 +16,9 @@ beforeAll(async () => {
   ayse = await createMember("musteri@example.com", "cok-gizli-parola-2");
 
   // Granting admin is a setup step, exactly as it will be in production: one
-  // row, written with a key that never reaches a browser.
-  const { error } = await adminClient().from("admins").insert({ id: hilal.id });
-  if (error) throw new Error(`Could not grant admin: ${error.message}`);
+  // row written with a key that never reaches a browser, and a second factor
+  // verified — without which is_admin() is false however right the account is.
+  await makeAdmin(hilal);
 });
 
 const delivery = {

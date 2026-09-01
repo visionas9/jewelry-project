@@ -74,6 +74,24 @@ To take it away, delete the row. Nothing else changes: the table is unreadable
 and unwritable through the API, and `is_admin()` answers the question without
 exposing who is on the list.
 
+### The second factor
+
+Admin access needs an authenticator code as well as a password. `is_admin()` is
+false for a session that has not verified one, so a stolen password reads
+nothing — the refusal is in the database, not in a page.
+
+Enrol at `/admin/security`, which is reachable with a password alone. Everything
+else in the panel is not. Enrol a second device while you are there: a lost
+phone with only one factor means the SQL below.
+
+If every device is lost, remove the factors with the service key and enrol
+again:
+
+```sql
+delete from auth.mfa_factors
+where user_id = (select id from auth.users where email = 'your@address');
+```
+
 ## Auth emails and where their links point
 
 The confirmation and reset emails build their link from the address the app
