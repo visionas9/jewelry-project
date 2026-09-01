@@ -57,6 +57,24 @@ It needs an access token, from `supabase login` or `SUPABASE_ACCESS_TOKEN`.
 That token can change auth settings on the live project, which is why this is
 a command someone runs on purpose rather than something CI does on a merge.
 
+## The administrator
+
+One person can see every order. That is a single row in `admins`, and it is
+granted per environment rather than in a migration: user ids differ between the
+local stack and the hosted project, and the account has to exist before it can
+be named.
+
+In the hosted project's SQL editor, or locally against `supabase start`:
+
+```sql
+insert into admins (id)
+select id from auth.users where email = 'her@address';
+```
+
+To take it away, delete the row. Nothing else changes: the table is unreadable
+and unwritable through the API, and `is_admin()` answers the question without
+exposing who is on the list.
+
 ## Auth emails and where their links point
 
 The confirmation and reset emails build their link from the address the app
