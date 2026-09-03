@@ -7,7 +7,7 @@ import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { CopyIban } from "@/components/checkout/CopyIban";
 import { requireMember } from "@/lib/auth-guard";
 import { BANK } from "@/lib/bank";
-import { formatPrice } from "@/lib/format";
+import { formatDateTime, formatPrice } from "@/lib/format";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/orders";
 
 export const metadata: Metadata = {
@@ -38,7 +38,9 @@ async function Order({ params }: { params: PageProps<"/orders/[code]">["params"]
   // never issued.
   const { data: order } = await supabase
     .from("orders")
-    .select("id, code, status, total, full_name, phone, city, district, address, created_at")
+    .select(
+      "id, code, status, total, full_name, phone, city, district, address, created_at, paid_at, shipped_at, delivered_at, cancelled_at, carrier, tracking_number"
+    )
     .eq("code", code)
     .maybeSingle();
 
@@ -50,6 +52,17 @@ async function Order({ params }: { params: PageProps<"/orders/[code]">["params"]
     .eq("order_id", order.id);
 
   const waiting = order.status === "pending";
+
+  // Only what has actually happened, in the order it happened. The buyer sees
+  // the same facts the panel does — nothing is hidden from the person whose
+  // parcel it is.
+  const timeline: { label: string; at: string }[] = [
+    { label: "Siparişiniz alındı", at: order.created_at },
+    order.paid_at ? { label: "Ödemeniz alındı", at: order.paid_at } : null,
+    order.shipped_at ? { label: "Kargoya verildi", at: order.shipped_at } : null,
+    order.delivered_at ? { label: "Teslim edildi", at: order.delivered_at } : null,
+    order.cancelled_at ? { label: "İptal edildi", at: order.cancelled_at } : null,
+  ].filter((event): event is { label: string; at: string } => Boolean(event));
 
   return (
     <>
@@ -99,6 +112,29 @@ async function Order({ params }: { params: PageProps<"/orders/[code]">["params"]
         </div>
       ) : null}
 
+      {/* The thing they came back to look up. Given its own block, above the
+          summary, because once a parcel is moving the tracking number is the
+          only part of this page anybody rereads. */}
+      {order.shipped_at && order.tracking_number ? (
+        <div className="mt-8 rounded-2xl border border-line bg-sand/60 px-5 py-6">
+          <h2 className="font-display text-xl">Kargo</h2>
+          <dl className="mt-4 flex flex-col gap-3 text-sm">
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted">Kargo firması</dt>
+              <dd className="text-right">{order.carrier}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-muted">Takip numarası</dt>
+              <dd className="text-right tabular-nums">{order.tracking_number}</dd>
+            </div>
+          </dl>
+          <p className="mt-4 text-sm leading-relaxed text-muted">
+            Takip numarası kargo firmasının sisteminde birkaç saat içinde
+            görünür hale gelir.
+          </p>
+        </div>
+      ) : null}
+
       <div className="mt-6 rounded-2xl border border-line px-5 py-6">
         <h2 className="font-display text-xl">Sipariş özeti</h2>
 
@@ -144,6 +180,20 @@ async function Order({ params }: { params: PageProps<"/orders/[code]">["params"]
           <br />
           {order.district} / {order.city}
         </p>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-line px-5 py-6">
+        <h2 className="font-display text-xl">Siparişinizin geçmişi</h2>
+        <ol className="mt-4 flex flex-col gap-3 text-sm">
+          {timeline.map((event) => (
+            <li key={event.label} className="flex justify-between gap-4">
+              <span>{event.label}</span>
+              <span className="shrink-0 text-right text-muted">
+                {formatDateTime(event.at)}
+              </span>
+            </li>
+          ))}
+        </ol>
       </div>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">

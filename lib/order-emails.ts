@@ -117,3 +117,61 @@ export function shopOrderEmail(order: OrderForEmail): Email {
       </td></tr>`),
   };
 }
+
+// The two emails an order sends as it moves along.
+//
+// Neither repeats the bank details: by the time these go out the money has
+// arrived, and an IBAN in front of somebody is how an order gets paid twice.
+// Both take only what they say — no address, no phone — so there is less of a
+// customer's data sitting in an inbox than there needs to be.
+
+export type OrderStatusEmail = {
+  code: string;
+  total: number;
+  fullName: string;
+  lines: OrderEmailLine[];
+};
+
+export type Shipment = { carrier: string; trackingNumber: string };
+
+export function orderPaidEmail(order: OrderStatusEmail): Email {
+  return {
+    subject: `Ödemenizi aldık — ${order.code}`,
+    html: WRAP(`
+      <tr><td style="font-size:16px;line-height:1.6;color:#1a1a1a;padding-bottom:12px;">Merhaba ${escape(order.fullName)},</td></tr>
+      <tr><td style="font-size:16px;line-height:1.7;color:#3d3d3d;padding-bottom:24px;">
+        <strong>${order.code}</strong> numaralı siparişinizin ödemesi hesabımıza
+        geçti. Siparişiniz hazırlanmaya başladı.
+      </td></tr>
+      ${lineList(order.lines)}
+      <tr><td style="font-size:16px;line-height:1.7;color:#1a1a1a;padding-bottom:24px;">
+        Toplam: <strong>${formatPrice(order.total, "TRY")}</strong>
+      </td></tr>
+      <tr><td style="font-size:14px;line-height:1.7;color:#6b6b6b;padding:0 0 32px;">
+        Kargoya verildiğinde takip numarasıyla birlikte size tekrar yazacağız.
+        Siparişinizi <a href="${SITE.url}/orders/${order.code}" style="color:#1a1a1a;">buradan</a> takip edebilirsiniz.
+      </td></tr>`),
+  };
+}
+
+export function orderShippedEmail(
+  order: OrderStatusEmail,
+  shipment: Shipment
+): Email {
+  return {
+    subject: `Siparişiniz kargoda — ${order.code}`,
+    html: WRAP(`
+      <tr><td style="font-size:16px;line-height:1.6;color:#1a1a1a;padding-bottom:12px;">Merhaba ${escape(order.fullName)},</td></tr>
+      <tr><td style="font-size:16px;line-height:1.7;color:#3d3d3d;padding-bottom:24px;">
+        <strong>${order.code}</strong> numaralı siparişiniz kargoya verildi.
+      </td></tr>
+      ${row("Kargo firması", escape(shipment.carrier))}
+      ${row("Takip numarası", escape(shipment.trackingNumber))}
+      <tr><td style="padding-bottom:24px;"></td></tr>
+      ${lineList(order.lines)}
+      <tr><td style="font-size:14px;line-height:1.7;color:#6b6b6b;padding:0 0 32px;">
+        Takip numarası kargo firmasının sisteminde birkaç saat içinde görünür
+        hale gelir. Siparişinizi <a href="${SITE.url}/orders/${order.code}" style="color:#1a1a1a;">buradan</a> görebilirsiniz.
+      </td></tr>`),
+  };
+}
