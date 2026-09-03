@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { turkishTransitionError } from "@/lib/admin-orders";
+import { isKnownCarrier } from "@/lib/carriers";
 import {
   orderDeliveredEmail,
   orderPaidEmail,
@@ -69,6 +70,13 @@ export async function perform(
     // fields rather than after a round trip that was never going to succeed.
     if (carrier === "" || tracking === "") {
       return { ok: false, message: "Kargo firması ve takip numarası gerekli." };
+    }
+
+    // The form offers a fixed list, but a form is only a suggestion — this
+    // request is whatever was actually posted. Checking it here is what keeps
+    // the stored spelling to the handful the rest of the app expects.
+    if (!isKnownCarrier(carrier)) {
+      return { ok: false, message: "Listedeki kargo firmalarından birini seçin." };
     }
 
     ({ error } = await supabase.rpc("mark_shipped", {
