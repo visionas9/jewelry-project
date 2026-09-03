@@ -1,6 +1,6 @@
 import "server-only";
 
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { createServerSupabase } from "./supabase-server";
 
@@ -29,4 +29,23 @@ export function requireAdmin() {
 // it with a password is the point.
 export function requireAdminAccount() {
   return ask("is_admin_account");
+}
+
+// The full guard for a panel page that reads or moves orders: the account, then
+// the second factor. A non-administrator was already turned into a 404 by
+// requireAdminAccount; the redirect below therefore only ever reaches the
+// administrator's own session, sending her to enrol or confirm a factor rather
+// than showing her a 404 of her own panel. Everything past this point is aal2,
+// which is what the order policies and functions demand anyway.
+export async function requireVerifiedAdmin() {
+  const supabase = await requireAdminAccount();
+
+  const { data: assurance } =
+    await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+  if (assurance?.currentLevel !== "aal2") {
+    redirect("/admin/security");
+  }
+
+  return supabase;
 }

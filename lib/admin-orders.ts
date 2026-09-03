@@ -76,3 +76,37 @@ export async function listAllOrders(
 
   return orders;
 }
+
+// The transition functions refuse in stable codes — see
+// supabase/migrations/0009_order_transitions.sql. This is where those become
+// Turkish, the same way turkishOrderError does for place_order.
+export const GENERIC_ACTION_ERROR =
+  "İşlem tamamlanamadı. Lütfen birazdan tekrar deneyin.";
+
+export function turkishTransitionError(error: unknown): string {
+  if (!error || typeof error !== "object") return GENERIC_ACTION_ERROR;
+
+  const { message } = error as { message?: unknown };
+
+  if (typeof message !== "string") return GENERIC_ACTION_ERROR;
+
+  if (message.includes("invalid_transition")) {
+    // The order moved under her — someone (or another tab) already changed it.
+    // Refresh rather than force it, so she acts on the real state.
+    return "Bu sipariş artık bu işlemi kabul etmiyor. Sayfayı yenileyip güncel durumu görün.";
+  }
+
+  if (message.includes("missing_tracking")) {
+    return "Kargo firması ve takip numarası gerekli.";
+  }
+
+  if (message.includes("unknown_order")) {
+    return "Sipariş bulunamadı.";
+  }
+
+  if (message.includes("forbidden")) {
+    return "Bu işlemi yapma yetkiniz yok.";
+  }
+
+  return GENERIC_ACTION_ERROR;
+}
