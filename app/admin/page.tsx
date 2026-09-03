@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { AdminNav } from "@/components/admin/AdminNav";
@@ -11,7 +10,7 @@ import {
   type AdminOrder,
   type OrderFilter,
 } from "@/lib/admin-orders";
-import { requireAdminAccount } from "@/lib/admin-guard";
+import { requireVerifiedAdmin } from "@/lib/admin-guard";
 import { formatDate, formatPrice } from "@/lib/format";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/orders";
 
@@ -44,18 +43,9 @@ async function Orders({
 }: {
   searchParams: PageProps<"/admin">["searchParams"];
 }) {
-  // The account, not yet the second factor: an administrator who has only typed
-  // a password is sent to enrol or confirm one rather than shown a 404 of their
-  // own panel. Everybody who is not the administrator was already turned away
-  // here with a 404 — this redirect only ever reaches her own account.
-  const supabase = await requireAdminAccount();
-
-  const { data: assurance } =
-    await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-
-  if (assurance?.currentLevel !== "aal2") {
-    redirect("/admin/security");
-  }
+  // Account, then second factor. A non-administrator was already 404'd; an
+  // administrator who has only typed a password is sent to confirm a factor.
+  const supabase = await requireVerifiedAdmin();
 
   const params = await searchParams;
   const filter = readFilter(paramOf(params.filter));
@@ -95,11 +85,14 @@ async function Orders({
 }
 
 // One order, legible at a glance: what it is, who it is for, how much, and where
-// it is. Not a link yet — the single-order page it will open is #60; until that
-// exists a tap here would land on a 404, so the card only shows for now.
+// it is. The whole card is the link into the single-order page, so it is one
+// easy tap on a phone.
 function OrderCard({ order }: { order: AdminOrder }) {
   return (
-    <div className="block rounded-2xl border border-line bg-cream px-5 py-4">
+    <Link
+      href={`/admin/orders/${order.code}`}
+      className="block rounded-2xl border border-line bg-cream px-5 py-4 transition-colors hover:border-ink"
+    >
       <div className="flex items-center justify-between gap-3">
         <span className="font-display text-lg tabular-nums">{order.code}</span>
         <OrderStatusBadge status={order.status} />
@@ -116,7 +109,7 @@ function OrderCard({ order }: { order: AdminOrder }) {
           {formatPrice(order.total, "TRY")}
         </span>
       </div>
-    </div>
+    </Link>
   );
 }
 
