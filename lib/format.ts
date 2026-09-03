@@ -15,3 +15,15 @@ export function formatDate(iso: string) {
     year: "numeric",
   });
 }
+
+// "3 Eylül 2026, 14:05". For the admin order timeline, where the time of day is
+// the point — she wants to know when the money landed, not just the date.
+export function formatDateTime(iso: string) {
+  return new Date(iso).toLocaleString("tr-TR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
