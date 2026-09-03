@@ -4,6 +4,7 @@ import { useActionState } from "react";
 
 import { perform } from "@/app/admin/orders/[code]/actions";
 import { SubmitButton } from "@/components/ui/SubmitButton";
+import { CARRIERS } from "@/lib/carriers";
 import { type OrderStatus } from "@/lib/orders";
 
 // The buttons that move an order along.
@@ -71,12 +72,24 @@ export function OrderActions({
             <div className="flex flex-col gap-3 rounded-2xl border border-line bg-sand/50 p-4">
               <label className="text-sm">
                 <span className="text-muted">Kargo firması</span>
-                <input
+                {/* Chosen, not typed. A native select is also the one control
+                    a phone renders as a full-screen picker, which is easier
+                    one-handed than a keyboard. */}
+                <select
                   name="carrier"
                   required
-                  placeholder="örn. Yurtiçi Kargo"
+                  defaultValue=""
                   className={`${FIELD} mt-1`}
-                />
+                >
+                  <option value="" disabled>
+                    Seçiniz
+                  </option>
+                  {CARRIERS.map((carrier) => (
+                    <option key={carrier} value={carrier}>
+                      {carrier}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label className="text-sm">
                 <span className="text-muted">Takip numarası</span>
