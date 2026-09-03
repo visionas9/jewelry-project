@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 
 import { turkishTransitionError } from "@/lib/admin-orders";
-import { orderPaidEmail, orderShippedEmail } from "@/lib/order-emails";
+import {
+  orderDeliveredEmail,
+  orderPaidEmail,
+  orderShippedEmail,
+} from "@/lib/order-emails";
 import { sendEmail } from "@/lib/send-email";
 import { createServerSupabase } from "@/lib/supabase-server";
 
@@ -88,10 +92,10 @@ export async function perform(
   revalidatePath(`/admin/orders/${code}`);
   revalidatePath(`/orders/${code}`);
 
-  // Only paid and shipped are worth an email, and only when the order actually
-  // arrived there just now. Nothing is sent for delivered, and nothing for a
-  // cancellation — a buyer should not be told about something that was undone.
-  if ((intent === "paid" || intent === "shipped") && before?.status !== intent) {
+  // Every move except a cancellation is worth an email, and only when the order
+  // actually arrived there just now. Nothing is sent for a cancellation — a
+  // buyer should not be told about something that was undone.
+  if (intent !== "cancel" && before?.status !== intent) {
     await announce(supabase, code, intent);
   }
 
@@ -107,7 +111,7 @@ export async function perform(
 async function announce(
   supabase: Awaited<ReturnType<typeof createServerSupabase>>,
   code: string,
-  intent: "paid" | "shipped"
+  intent: Exclude<Intent, "cancel">
 ) {
   try {
     const { data: order } = await supabase
@@ -145,15 +149,17 @@ async function announce(
       lines,
     };
 
-    await sendEmail({
-      to,
-      ...(intent === "paid"
+    const mail =
+      intent === "paid"
         ? orderPaidEmail(details)
-        : orderShippedEmail(details, {
-            carrier: order.carrier ?? "",
-            trackingNumber: order.tracking_number ?? "",
-          })),
-    });
+        : intent === "delivered"
+          ? orderDeliveredEmail(details)
+          : orderShippedEmail(details, {
+              carrier: order.carrier ?? "",
+              trackingNumber: order.tracking_number ?? "",
+            });
+
+    await sendEmail({ to, ...mail });
   } catch (error) {
     console.error(`[email] could not announce ${intent} for ${code}`, error);
   }

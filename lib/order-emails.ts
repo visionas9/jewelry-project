@@ -24,6 +24,11 @@ export type OrderForEmail = {
 
 export type Email = { subject: string; html: string };
 
+// The address a customer is invited to write to. A literal rather than an
+// import from send-email.ts, which is server-only — these builders are pure and
+// are exercised directly by the tests.
+const ORDER_EMAIL_ADDRESS = "merhaba@ishindenshinstore.com";
+
 // Everything below is written by a customer, so it is escaped before it reaches
 // the markup. An address field is as good a place to put a <script> as any.
 function escape(value: string) {
@@ -172,6 +177,31 @@ export function orderShippedEmail(
       <tr><td style="font-size:14px;line-height:1.7;color:#6b6b6b;padding:0 0 32px;">
         Takip numarası kargo firmasının sisteminde birkaç saat içinde görünür
         hale gelir. Siparişinizi <a href="${SITE.url}/orders/${order.code}" style="color:#1a1a1a;">buradan</a> görebilirsiniz.
+      </td></tr>`),
+  };
+}
+
+// The last one: it arrived.
+//
+// Written so that an invitation to leave a review can be added later without a
+// rewrite — there is nowhere to leave one yet, and a link to a page that does
+// not exist is worse than no link. Until then the closing line does the useful
+// half of that job: it opens a door back to us if something is wrong.
+export function orderDeliveredEmail(order: OrderStatusEmail): Email {
+  return {
+    subject: `Siparişiniz teslim edildi — ${order.code}`,
+    html: WRAP(`
+      <tr><td style="font-size:16px;line-height:1.6;color:#1a1a1a;padding-bottom:12px;">Merhaba ${escape(order.fullName)},</td></tr>
+      <tr><td style="font-size:16px;line-height:1.7;color:#3d3d3d;padding-bottom:24px;">
+        <strong>${order.code}</strong> numaralı siparişiniz teslim edildi.
+        Beğenerek kullanmanızı dileriz.
+      </td></tr>
+      ${lineList(order.lines)}
+      <tr><td style="font-size:14px;line-height:1.7;color:#6b6b6b;padding:0 0 32px;">
+        Bir sorun varsa ya da aklınıza takılan bir şey olursa
+        <a href="mailto:${ORDER_EMAIL_ADDRESS}" style="color:#1a1a1a;">${ORDER_EMAIL_ADDRESS}</a>
+        adresine yazmanız yeterli. Siparişinizin detaylarına
+        <a href="${SITE.url}/orders/${order.code}" style="color:#1a1a1a;">buradan</a> ulaşabilirsiniz.
       </td></tr>`),
   };
 }
