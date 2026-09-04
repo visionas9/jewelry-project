@@ -36,7 +36,7 @@ export function CheckoutSteps({ current }: { current: 1 | 2 | 3 }) {
                   here
                     ? "bg-ink text-cream"
                     : done
-                      ? "bg-brass text-cream"
+                      ? "bg-clay text-cream"
                       : "border border-line text-muted"
                 }`}
               >

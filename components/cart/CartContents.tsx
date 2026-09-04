@@ -22,7 +22,7 @@ export function CartContents({ products }: { products: Product[] }) {
     return (
       <div aria-hidden="true" className="mt-10 space-y-4">
         {Array.from({ length: 2 }).map((_, i) => (
-          <div key={i} className="h-28 animate-pulse rounded-sm bg-sand" />
+          <div key={i} className="h-28 animate-pulse rounded-2xl bg-sand" />
         ))}
       </div>
     );
@@ -35,14 +35,14 @@ export function CartContents({ products }: { products: Product[] }) {
 
   if (lines.length === 0) {
     return (
-      <div className="mt-10 rounded-sm border border-line bg-sand px-6 py-14 text-center">
+      <div className="mt-10 rounded-2xl border border-line bg-sand px-6 py-14 text-center">
         <p className="font-display text-xl font-medium">Sepetin henüz boş</p>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted">
-          Beğendiğin bileklikleri buraya ekle, sonra rahat rahat karar ver.
+          Beğendiğiniz bileklikleri sepetinize ekleyin, karar vermek için acele etmeyin.
         </p>
         <Link
           href="/products"
-          className="mt-6 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+          className="mt-6 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay"
         >
           Bilekliklere göz at
         </Link>
@@ -88,7 +88,7 @@ export function CartContents({ products }: { products: Product[] }) {
             <li key={item.productId} className="flex gap-4 py-5 sm:gap-6">
               <Link
                 href={`/products/${product.slug}`}
-                className="relative size-20 shrink-0 overflow-hidden rounded-sm bg-sand sm:size-24"
+                className="relative size-20 shrink-0 overflow-hidden rounded-2xl bg-sand sm:size-24"
               >
                 {product.images[0] ? (
                   <Image
@@ -106,7 +106,7 @@ export function CartContents({ products }: { products: Product[] }) {
                   <h2 className="font-display text-base leading-snug font-medium">
                     <Link
                       href={`/products/${product.slug}`}
-                      className="transition-colors hover:text-brass"
+                      className="transition-colors hover:text-clay"
                     >
                       {product.name}
                     </Link>
@@ -128,7 +128,7 @@ export function CartContents({ products }: { products: Product[] }) {
                         setQuantity(item.productId, item.quantity - 1, product.stock)
                       }
                       aria-label={`${product.name} adedini azalt`}
-                      className="flex size-9 items-center justify-center rounded-full transition-colors hover:text-brass"
+                      className="flex size-9 items-center justify-center rounded-full transition-colors hover:text-clay"
                     >
                       −
                     </button>
@@ -142,7 +142,7 @@ export function CartContents({ products }: { products: Product[] }) {
                       }
                       disabled={atStockLimit}
                       aria-label={`${product.name} adedini artır`}
-                      className="flex size-9 items-center justify-center rounded-full transition-colors hover:text-brass disabled:opacity-30"
+                      className="flex size-9 items-center justify-center rounded-full transition-colors hover:text-clay disabled:opacity-30"
                     >
                       +
                     </button>
@@ -169,7 +169,7 @@ export function CartContents({ products }: { products: Product[] }) {
       </ul>
 
       <aside className="lg:sticky lg:top-28 lg:self-start">
-        <div className="rounded-sm border border-line bg-sand px-6 py-6">
+        <div className="rounded-2xl border border-line bg-sand px-6 py-6">
           <div className="flex items-baseline justify-between">
             <p className="font-display text-lg font-medium">Toplam</p>
             <p className="text-lg tabular-nums">{formatPrice(total, "TRY")}</p>
@@ -181,7 +181,7 @@ export function CartContents({ products }: { products: Product[] }) {
 
           <Link
             href="/checkout"
-            className="mt-6 block w-full rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+            className="mt-6 block w-full rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-clay"
           >
             Siparişi tamamla
           </Link>

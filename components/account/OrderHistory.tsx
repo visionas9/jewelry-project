@@ -42,7 +42,7 @@ export function OrderHistory({ orders }: { orders: OrderSummary[] }) {
               <span className="flex items-baseline gap-4 text-sm">
                 <span
                   className={
-                    order.status === "cancelled" ? "text-muted" : "text-brass"
+                    order.status === "cancelled" ? "text-muted" : "text-clay"
                   }
                 >
                   {ORDER_STATUS_LABELS[order.status]}

@@ -8,13 +8,13 @@ export default function ProductNotFound() {
         Bu bilekliği bulamadık
       </h1>
       <p className="mt-4 max-w-md text-sm leading-relaxed text-muted">
-        Aradığın model kaldırılmış olabilir ya da adreste küçük bir yazım
+        Aradığınız model kaldırılmış olabilir ya da adreste küçük bir yazım
         hatası vardır. Olur öyle.
       </p>
 
       <Link
         href="/products"
-        className="mt-8 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+        className="mt-8 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay"
       >
         Bilekliklere geri dön
       </Link>

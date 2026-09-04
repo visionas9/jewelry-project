@@ -48,7 +48,7 @@ const WRAP = (body: string) => `<!doctype html>
           <tr><td style="font-size:18px;letter-spacing:0.08em;color:#1a1a1a;padding-bottom:32px;">ishin denshin</td></tr>
           ${body}
           <tr><td style="border-top:1px solid #ececec;padding-top:24px;font-size:13px;line-height:1.7;color:#9a9a9a;">
-            ishin denshin — doğal taşlarla elde hazırlanan bileklikler<br />
+            ishin denshin — el yapımı doğal taş bileklikler<br />
             <a href="${SITE.url}" style="color:#9a9a9a;">ishindenshinstore.com</a>
           </td></tr>
         </table>

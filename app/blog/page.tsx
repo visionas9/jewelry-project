@@ -65,7 +65,7 @@ async function Posts() {
             <p className="mt-4 text-xs text-muted">
               {formatDate(post.publishedAt)}
             </p>
-            <h2 className="mt-1 font-display text-xl transition-colors group-hover:text-brass md:text-2xl">
+            <h2 className="mt-1 font-display text-xl transition-colors group-hover:text-clay md:text-2xl">
               {post.title}
             </h2>
           </Link>

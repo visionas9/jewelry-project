@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Fraunces, Karla } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -8,15 +8,17 @@ import "./globals.css";
 
 // "latin-ext" is required — it carries ş, ğ, ı, İ, ç, ö, ü.
 // Without it Turkish product names render with fallback glyphs.
-const inter = Inter({
-  variable: "--font-inter",
+const karla = Karla({
+  variable: "--font-karla",
   subsets: ["latin", "latin-ext"],
 });
 
-const cormorant = Cormorant_Garamond({
-  variable: "--font-cormorant",
+// Both are variable fonts, so no weight list: the whole range ships in one file
+// and the display face can be set softly at 400 or firmly at 600 without a
+// second download.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -32,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="tr"
-      className={`${inter.variable} ${cormorant.variable} h-full antialiased`}
+      className={`${karla.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
         <Header />

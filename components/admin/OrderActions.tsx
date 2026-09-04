@@ -30,10 +30,10 @@ const MAIN: Partial<Record<OrderStatus, { intent: string; label: string }>> = {
 };
 
 const MAIN_BUTTON =
-  "w-full rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted";
+  "w-full rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted";
 
 const QUIET_BUTTON =
-  "w-full rounded-full border border-brass/50 px-7 py-3 text-sm tracking-wide text-brass transition-colors hover:bg-brass/10 disabled:border-line disabled:text-muted";
+  "w-full rounded-full border border-clay/50 px-7 py-3 text-sm tracking-wide text-clay transition-colors hover:bg-clay/10 disabled:border-line disabled:text-muted";
 
 export function OrderActions({
   code,
@@ -49,13 +49,13 @@ export function OrderActions({
 
   return (
     <div className="mt-8">
-      {/* Both endings land here. Green-ish for done, brass for a refusal — and
+      {/* Both endings land here. Green-ish for done, clay for a refusal — and
           read aloud either way. */}
       <p
         role="status"
         aria-live="polite"
         className={`text-sm ${
-          state ? (state.ok ? "text-ink" : "text-brass") : "sr-only"
+          state ? (state.ok ? "text-ink" : "text-clay") : "sr-only"
         }`}
       >
         {state?.message ?? ""}

@@ -67,7 +67,7 @@ export function SearchField({
         {isPending ? (
           <span
             aria-hidden="true"
-            className="size-3 animate-pulse rounded-full bg-brass"
+            className="size-3 animate-pulse rounded-full bg-clay"
           />
         ) : (
           <>

@@ -25,13 +25,13 @@ export function StockRow({ product }: { product: AdminProduct }) {
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm">{product.name}</p>
         <p className="mt-0.5 text-xs">
-          <span className={out ? "text-brass" : "text-muted"}>
+          <span className={out ? "text-clay" : "text-muted"}>
             {out ? "Tükendi" : `Rafta ${product.stock}`}
           </span>
           {/* Said where it happened rather than at the top of the page: with
               twenty rows, a message anywhere else belongs to no row. */}
           {state ? (
-            <span className={state.ok ? " text-ink" : " text-brass"}>
+            <span className={state.ok ? " text-ink" : " text-clay"}>
               {" · "}
               {state.message}
             </span>

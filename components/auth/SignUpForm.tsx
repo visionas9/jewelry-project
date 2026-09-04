@@ -42,7 +42,7 @@ export function SignUpForm() {
       <p
         role="alert"
         aria-live="polite"
-        className={`text-sm text-brass ${error ? "" : "sr-only"}`}
+        className={`text-sm text-clay ${error ? "" : "sr-only"}`}
       >
         {error ?? ""}
       </p>
@@ -91,14 +91,14 @@ export function SignUpForm() {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
+        className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted"
       >
         {pending ? <Busy label="Gönderiliyor…" /> : "Hesap oluştur"}
       </button>
 
       <p className="text-center text-sm text-muted">
         Hesabınız var mı?{" "}
-        <Link href="/signin" className="text-ink underline hover:text-brass">
+        <Link href="/signin" className="text-ink underline hover:text-clay">
           Giriş yapın
         </Link>
       </p>
@@ -148,7 +148,7 @@ function CheckYourInbox({ email }: { email: string }) {
 
       <Link
         href="/signin"
-        className="rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+        className="rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-clay"
       >
         Doğruladım, giriş yap
       </Link>
@@ -166,7 +166,7 @@ function CheckYourInbox({ email }: { email: string }) {
           role="status"
           aria-live="polite"
           className={`text-center text-sm ${
-            state?.ok === false ? "text-brass" : "text-muted"
+            state?.ok === false ? "text-clay" : "text-muted"
           } ${state ? "" : "sr-only"}`}
         >
           {state?.message ?? ""}

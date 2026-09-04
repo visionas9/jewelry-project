@@ -55,7 +55,7 @@ export function DisplayNameForm({ current }: { current: string | null }) {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
+          className="rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted"
         >
           {pending ? <Busy label="Kaydediliyor…" /> : "Kaydet"}
         </button>
@@ -66,7 +66,7 @@ export function DisplayNameForm({ current }: { current: string | null }) {
         <p
           role="status"
           aria-live="polite"
-          className={`text-sm ${state?.ok === false ? "text-brass" : "text-muted"} ${
+          className={`text-sm ${state?.ok === false ? "text-clay" : "text-muted"} ${
             state ? "" : "sr-only"
           }`}
         >

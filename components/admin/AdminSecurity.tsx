@@ -90,7 +90,7 @@ export function AdminSecurity({
     <div className="mt-8 flex flex-col gap-6">
       <p
         role="alert"
-        className={`text-sm text-brass ${error ? "" : "sr-only"}`}
+        className={`text-sm text-clay ${error ? "" : "sr-only"}`}
       >
         {error ?? ""}
       </p>
@@ -118,7 +118,7 @@ export function AdminSecurity({
             type="button"
             disabled={busy || code.length < 6}
             onClick={() => submitCode(factorId!)}
-            className="mt-4 w-full rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
+            className="mt-4 w-full rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted"
           >
             {busy ? <Busy label="Doğrulanıyor…" /> : "Doğrula"}
           </button>
@@ -166,7 +166,7 @@ export function AdminSecurity({
             type="button"
             disabled={busy || code.length < 6}
             onClick={() => submitCode(enrolling.factorId)}
-            className="mt-4 w-full rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
+            className="mt-4 w-full rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted"
           >
             {busy ? <Busy label="Doğrulanıyor…" /> : "Cihazı doğrula"}
           </button>

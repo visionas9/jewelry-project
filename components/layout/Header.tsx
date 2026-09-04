@@ -19,7 +19,7 @@ export function Header() {
             used to be `uppercase`, which would have rendered ISHIN DENSHIN. */}
         <Link
           href="/"
-          className="font-display text-2xl leading-none font-medium lowercase tracking-[0.02em] transition-colors hover:text-brass md:text-[1.6rem]"
+          className="font-display text-2xl leading-none font-medium lowercase tracking-[0.02em] transition-colors hover:text-clay md:text-[1.6rem]"
         >
           {SITE.name}
         </Link>

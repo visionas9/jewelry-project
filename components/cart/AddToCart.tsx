@@ -41,7 +41,7 @@ export function AddToCart({ product }: { product: Product }) {
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             disabled={quantity <= 1}
             aria-label="Adedi azalt"
-            className="flex size-11 items-center justify-center rounded-full text-lg transition-colors hover:text-brass disabled:opacity-30 disabled:hover:text-ink"
+            className="flex size-11 items-center justify-center rounded-full text-lg transition-colors hover:text-clay disabled:opacity-30 disabled:hover:text-ink"
           >
             −
           </button>
@@ -55,7 +55,7 @@ export function AddToCart({ product }: { product: Product }) {
             onClick={() => setQuantity((q) => Math.min(remaining || 1, q + 1))}
             disabled={quantity >= remaining}
             aria-label="Adedi artır"
-            className="flex size-11 items-center justify-center rounded-full text-lg transition-colors hover:text-brass disabled:opacity-30 disabled:hover:text-ink"
+            className="flex size-11 items-center justify-center rounded-full text-lg transition-colors hover:text-clay disabled:opacity-30 disabled:hover:text-ink"
           >
             +
           </button>
@@ -65,9 +65,9 @@ export function AddToCart({ product }: { product: Product }) {
           type="button"
           onClick={handleAdd}
           disabled={!canAdd}
-          className="flex-1 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
+          className="flex-1 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted"
         >
-          {canAdd ? "Sepete ekle" : "Stoktakilerin hepsi sepetinde"}
+          {canAdd ? "Sepete ekle" : "Stoktakilerin hepsi sepetinizde"}
         </button>
       </div>
 

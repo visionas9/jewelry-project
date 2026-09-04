@@ -44,7 +44,7 @@ async function Posts() {
 
       <Link
         href="/admin/blog/new"
-        className="mt-6 inline-block rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+        className="mt-6 inline-block rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay"
       >
         Yeni yazı
       </Link>
