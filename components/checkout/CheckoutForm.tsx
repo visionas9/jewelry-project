@@ -91,7 +91,7 @@ export function CheckoutForm() {
         </p>
         <Link
           href="/products"
-          className="mt-6 inline-block rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+          className="mt-6 inline-block rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay"
         >
           Bilekliklere göz at
         </Link>
@@ -161,7 +161,7 @@ export function CheckoutForm() {
         {failed?.message ? (
           <p
             role="alert"
-            className="rounded-2xl border border-brass/40 bg-brass/10 px-4 py-3 text-sm leading-relaxed text-brass"
+            className="rounded-2xl border border-clay/40 bg-clay/10 px-4 py-3 text-sm leading-relaxed text-clay"
           >
             {failed.message}
             {/* A way there, not just the news. Somebody told they have an
@@ -183,7 +183,7 @@ export function CheckoutForm() {
         <button
           type="submit"
           disabled={pending || placed || blocked}
-          className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
+          className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted"
         >
           {placed ? (
             <Busy label="Siparişiniz alındı, yönlendiriliyorsunuz…" />
@@ -210,7 +210,7 @@ export function CheckoutForm() {
             <p
               key={`${problem.kind}-${problem.productId}`}
               role="alert"
-              className="mt-4 rounded-2xl border border-line bg-cream px-4 py-3 text-sm leading-relaxed text-brass"
+              className="mt-4 rounded-2xl border border-line bg-cream px-4 py-3 text-sm leading-relaxed text-clay"
             >
               {problem.kind === "missing"
                 ? "Sepetinizdeki bir ürün artık satışta değil. Lütfen sepetinizden çıkarın."
@@ -282,7 +282,7 @@ function Field({
     required: true,
     "aria-invalid": error ? true : undefined,
     "aria-describedby": described,
-    className: `${FIELD} ${error ? "border-brass" : ""}`,
+    className: `${FIELD} ${error ? "border-clay" : ""}`,
   };
 
   return (
@@ -300,7 +300,7 @@ function Field({
       {/* Under the field, not at the top of the form: the message has to be
           where the thing it is about is. */}
       {error ? (
-        <p id={errorId!} role="alert" className="text-sm text-brass">
+        <p id={errorId!} role="alert" className="text-sm text-clay">
           {error}
         </p>
       ) : null}

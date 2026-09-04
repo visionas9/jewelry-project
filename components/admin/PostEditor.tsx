@@ -24,7 +24,7 @@ const FIELD =
   "w-full rounded-2xl border border-line bg-cream px-4 py-3 text-base outline-none focus:border-ink";
 
 const BUTTON =
-  "rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted";
+  "rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted";
 
 export function PostEditor({
   post,
@@ -126,7 +126,7 @@ export function PostEditor({
           ) : null}
         </div>
 
-        <p role="alert" className={`mt-2 text-sm text-brass ${uploadError ? "" : "sr-only"}`}>
+        <p role="alert" className={`mt-2 text-sm text-clay ${uploadError ? "" : "sr-only"}`}>
           {uploadError ?? ""}
         </p>
         {uploading ? <p className="mt-2 text-sm text-muted">Yükleniyor…</p> : null}
@@ -146,7 +146,7 @@ export function PostEditor({
       <p
         role="status"
         aria-live="polite"
-        className={`text-sm ${state ? (state.ok ? "text-ink" : "text-brass") : "sr-only"}`}
+        className={`text-sm ${state ? (state.ok ? "text-ink" : "text-clay") : "sr-only"}`}
       >
         {state?.message ?? ""}
       </p>

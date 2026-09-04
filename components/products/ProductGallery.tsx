@@ -128,7 +128,7 @@ export function ProductGallery({
               aria-current={i === index}
               className={[
                 "h-1.5 rounded-full transition-all duration-300",
-                i === index ? "w-6 bg-brass" : "w-1.5 bg-line hover:bg-muted",
+                i === index ? "w-6 bg-clay" : "w-1.5 bg-line hover:bg-muted",
               ].join(" ")}
             />
           ))}

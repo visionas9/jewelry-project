@@ -1,18 +1,21 @@
 @import "tailwindcss";
 
-/* Warm, light, minimal — the stones are the colour, the page stays quiet. */
+/* Toprak — warm earth. Clay carries every action, sage is the quiet second
+   voice, and the page stays soft enough that a photographed stone is still the
+   brightest thing on it. */
 @theme {
-  --color-cream: #fbf9f6;
-  --color-sand: #f3ede4;
-  --color-line: #e7ded2;
-  --color-ink: #2e2a26;
-  --color-muted: #7c7268;
-  --color-brass: #9c7c4f;
+  --color-cream: #fdf9f3;
+  --color-sand: #eadfce;
+  --color-line: #e0d2c0;
+  --color-ink: #3b2f27;
+  --color-muted: #7d6b5d;
+  --color-clay: #b8795a;
+  --color-sage: #7d8b76;
 }
 
 @theme inline {
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-cormorant);
+  --font-sans: var(--font-karla);
+  --font-display: var(--font-fraunces);
 }
 
 @layer base {
@@ -24,7 +27,7 @@
 
   /* Visible keyboard focus everywhere, in the brand colour. */
   :focus-visible {
-    outline: 2px solid var(--color-brass);
+    outline: 2px solid var(--color-clay);
     outline-offset: 3px;
   }
 }

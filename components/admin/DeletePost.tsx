@@ -32,14 +32,14 @@ export function DeletePost({ id }: { id: number }) {
         </p>
         <p
           role="alert"
-          className={`mt-2 text-sm text-brass ${state && !state.ok ? "" : "sr-only"}`}
+          className={`mt-2 text-sm text-clay ${state && !state.ok ? "" : "sr-only"}`}
         >
           {state?.ok === false ? state.message : ""}
         </p>
         <form action={formAction} className="mt-4">
           <SubmitButton
             pendingLabel="Siliniyor…"
-            className="w-full rounded-full border border-brass/50 px-7 py-3 text-sm tracking-wide text-brass transition-colors hover:bg-brass/10 disabled:border-line disabled:text-muted"
+            className="w-full rounded-full border border-clay/50 px-7 py-3 text-sm tracking-wide text-clay transition-colors hover:bg-clay/10 disabled:border-line disabled:text-muted"
           >
             Kalıcı olarak sil
           </SubmitButton>

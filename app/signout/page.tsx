@@ -31,7 +31,7 @@ export default function SignOutPage() {
         <form action={signOut}>
           <SubmitButton
             pendingLabel="Çıkış yapılıyor…"
-            className="w-full rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass sm:w-auto disabled:text-muted"
+            className="w-full rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay sm:w-auto disabled:text-muted"
           >
             Çıkış yap
           </SubmitButton>

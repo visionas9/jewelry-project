@@ -17,7 +17,7 @@ export function ProductCard({ product }: { product: Product }) {
 
       <div className="mt-4 flex items-start justify-between gap-4">
         <h2 className="font-display text-lg leading-snug font-medium">
-          <Link href={href} className="transition-colors hover:text-brass">
+          <Link href={href} className="transition-colors hover:text-clay">
             {product.name}
           </Link>
         </h2>

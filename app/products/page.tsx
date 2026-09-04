@@ -62,7 +62,7 @@ async function ProductResults({
         action={
           <Link
             href="/products"
-            className="mt-6 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay"
           >
             Hepsini göster
           </Link>
@@ -114,7 +114,7 @@ function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mt-10 rounded-sm border border-line bg-sand px-6 py-14 text-center">
+    <div className="mt-10 rounded-2xl border border-line bg-sand px-6 py-14 text-center">
       <p className="font-display text-xl font-medium">{title}</p>
       <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted">
         {body}

@@ -1,9 +1,9 @@
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/orders";
 
 // The state, as a word and a colour. pending is the one that wants doing, so it
-// is the one that carries the brass; the finished states are quiet.
+// is the one that carries the clay; the finished states are quiet.
 const TONE: Record<OrderStatus, string> = {
-  pending: "border-brass/40 bg-brass/10 text-brass",
+  pending: "border-clay/40 bg-clay/10 text-clay",
   paid: "border-ink/20 bg-sand text-ink",
   shipped: "border-ink/20 bg-sand text-ink",
   delivered: "border-line bg-sand text-muted",

@@ -28,7 +28,7 @@ export function NewPasswordForm() {
       <p
         role="alert"
         aria-live="polite"
-        className={`text-sm text-brass ${state ? "" : "sr-only"}`}
+        className={`text-sm text-clay ${state ? "" : "sr-only"}`}
       >
         {state?.message ?? ""}
       </p>
@@ -61,7 +61,7 @@ export function NewPasswordForm() {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
+        className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted"
       >
         {pending ? <Busy label="Kaydediliyor…" /> : "Şifremi güncelle"}
       </button>

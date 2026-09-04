@@ -10,7 +10,7 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-24">
         <div className="grid gap-10 md:grid-cols-2 md:items-center md:gap-16">
           <div className="flex flex-col items-start gap-6">
-            <p className="text-xs tracking-[0.25em] text-brass uppercase">
+            <p className="text-xs tracking-[0.25em] text-clay uppercase">
               El emeği · Gerçek taş
             </p>
             <h1 className="font-display text-4xl leading-[1.1] font-medium text-balance md:text-6xl">
@@ -21,7 +21,7 @@ export default function HomePage() {
             </p>
             <Link
               href="/products"
-              className="mt-2 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay"
             >
               Bilekliklere göz at
             </Link>
@@ -39,7 +39,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-sand md:aspect-[3/4]">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-sand md:aspect-[3/4]">
             <Image
               src="/images/lapis-blue-1.jpg"
               alt="Lapis taşlı el yapımı bileklik"

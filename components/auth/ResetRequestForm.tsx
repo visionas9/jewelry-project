@@ -36,7 +36,7 @@ export function ResetRequestForm() {
       <p
         role="alert"
         aria-live="polite"
-        className={`text-sm text-brass ${error ? "" : "sr-only"}`}
+        className={`text-sm text-clay ${error ? "" : "sr-only"}`}
       >
         {error ?? ""}
       </p>
@@ -63,14 +63,14 @@ export function ResetRequestForm() {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass disabled:bg-line disabled:text-muted"
+        className="mt-2 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted"
       >
         {pending ? <Busy label="Gönderiliyor…" /> : "Sıfırlama bağlantısı gönder"}
       </button>
 
       <p className="text-center text-sm text-muted">
         Şifrenizi hatırladınız mı?{" "}
-        <Link href="/signin" className="text-ink underline hover:text-brass">
+        <Link href="/signin" className="text-ink underline hover:text-clay">
           Giriş yapın
         </Link>
       </p>
@@ -150,7 +150,7 @@ function DoneButton() {
   return (
     <Link
       href="/account"
-      className={`${BUTTON} bg-ink text-cream hover:bg-brass`}
+      className={`${BUTTON} bg-ink text-cream hover:bg-clay`}
     >
       {LABEL}
     </Link>

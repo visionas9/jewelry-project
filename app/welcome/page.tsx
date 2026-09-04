@@ -50,7 +50,7 @@ async function Confirmed() {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <Link
           href="/products"
-          className="rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+          className="rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-clay"
         >
           Bilekliklere göz at
         </Link>

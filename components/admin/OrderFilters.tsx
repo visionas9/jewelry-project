@@ -57,7 +57,7 @@ export function OrderFilters({
         />
         <button
           type="submit"
-          className="shrink-0 rounded-full bg-ink px-5 py-2.5 text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+          className="shrink-0 rounded-full bg-ink px-5 py-2.5 text-sm tracking-wide text-cream transition-colors hover:bg-clay"
         >
           Ara
         </button>

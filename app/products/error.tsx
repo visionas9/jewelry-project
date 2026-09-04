@@ -22,7 +22,7 @@ export default function ProductsError({
       <button
         type="button"
         onClick={reset}
-        className="mt-8 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-brass"
+        className="mt-8 inline-flex items-center justify-center rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay"
       >
         Tekrar dene
       </button>
