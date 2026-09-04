@@ -1,14 +1,13 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { listOrders } from "@/lib/orders";
-import { createMember, type Member } from "./support/accounts";
+import { createBuyer, createMember, makeAdmin, type Member } from "./support/accounts";
 import { createProduct } from "./support/products";
 
 // Read through a member's own client, so the list is exactly what the account
 // page will be able to show.
 
-let ayse: Member;
-let mehmet: Member;
+let hilal: Member;
 
 const delivery = {
   full_name: "Ayşe Yılmaz",
@@ -18,14 +17,18 @@ const delivery = {
   address: "Caferağa Mah. Örnek Sok. No 3 D 5",
 };
 
+// An administrator, because building a history means settling one order before
+// the next can be placed — a member may hold only one unpaid order at a time.
 beforeAll(async () => {
-  ayse = await createMember("gecmis-ayse@example.com", "cok-gizli-parola-1");
-  mehmet = await createMember("gecmis-mehmet@example.com", "cok-gizli-parola-2");
+  hilal = await createMember("gecmis-yonetici@example.com", "cok-gizli-parola-1");
+
+  await makeAdmin(hilal);
 });
 
 describe("a member's order history", () => {
   it("gives back what a list needs about each order", async () => {
     const bracelet = await createProduct({ price: 250, stock: 10 });
+    const ayse = await createBuyer();
 
     const { data: code } = await ayse.client.rpc("place_order", {
       items: [{ product_id: bracelet.id, quantity: 2 }],
@@ -46,14 +49,20 @@ describe("a member's order history", () => {
 
   it("puts the newest order first", async () => {
     const bracelet = await createProduct({ price: 100, stock: 10 });
+    const ayse = await createBuyer();
     const codes: string[] = [];
 
+    // Settled between each, which is how somebody comes to have a history at
+    // all: the shop takes one unpaid order at a time, so the previous one has
+    // to be paid before the next can be placed.
     for (let i = 0; i < 3; i += 1) {
       const { data: code } = await ayse.client.rpc("place_order", {
         items: [{ product_id: bracelet.id, quantity: 1 }],
         ...delivery,
       });
       codes.push(code as string);
+
+      await hilal.client.rpc("mark_paid", { order_code: code });
     }
 
     const listed = (await listOrders(ayse.client)).map((order) => order.code);
@@ -66,6 +75,7 @@ describe("a member's order history", () => {
 
   it("never contains another member's order", async () => {
     const bracelet = await createProduct({ price: 100, stock: 10 });
+    const [ayse, mehmet] = await Promise.all([createBuyer(), createBuyer()]);
 
     const { data: code } = await mehmet.client.rpc("place_order", {
       items: [{ product_id: bracelet.id, quantity: 1 }],

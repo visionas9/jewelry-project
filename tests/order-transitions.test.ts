@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { supabase as anonymous } from "@/lib/supabase";
-import { createMember, makeAdmin, type Member } from "./support/accounts";
+import { createBuyer, createMember, makeAdmin, type Member } from "./support/accounts";
 import { createProduct, stockOf } from "./support/products";
 
 // Moving an order along: paid, shipped, delivered, cancelled.
@@ -11,11 +11,9 @@ import { createProduct, stockOf } from "./support/products";
 // same policies a real browser would face, and the member's are meant to fail.
 
 let hilal: Member;
-let ayse: Member;
 
 beforeAll(async () => {
   hilal = await createMember("yonetici-siparis@example.com", "cok-gizli-parola-3");
-  ayse = await createMember("musteri-siparis@example.com", "cok-gizli-parola-4");
 
   await makeAdmin(hilal);
 });
@@ -28,18 +26,26 @@ const delivery = {
   address: "Caferağa Mah. Örnek Sok. No 3 D 5",
 };
 
-/** A real order, placed the only way orders can be placed. */
+/**
+ * A real order, placed the only way orders can be placed.
+ *
+ * A buyer of its own each time: a member may hold only one unpaid order, so a
+ * shared one would have the second call in a file refused for that rather than
+ * for whatever the test is about. The buyer comes back because some of these
+ * tests are about what the person who placed it may not do.
+ */
 async function placeOrder(quantity = 1, stock = 5) {
   const bracelet = await createProduct({ price: 250, stock });
+  const buyer = await createBuyer();
 
-  const { data: code, error } = await ayse.client.rpc("place_order", {
+  const { data: code, error } = await buyer.client.rpc("place_order", {
     items: [{ product_id: bracelet.id, quantity }],
     ...delivery,
   });
 
   if (error || !code) throw new Error(`Could not place an order: ${error?.message}`);
 
-  return { code: code as string, product: bracelet };
+  return { code: code as string, product: bracelet, buyer };
 }
 
 async function read(code: string) {
@@ -238,25 +244,25 @@ describe("transitions that make no sense", () => {
 
 describe("who may move an order along", () => {
   it("refuses the member who placed it", async () => {
-    const { code } = await placeOrder();
+    const { code, buyer } = await placeOrder();
 
-    const { error } = await ayse.client.rpc("mark_paid", { order_code: code });
+    const { error } = await buyer.client.rpc("mark_paid", { order_code: code });
 
     expect(error?.message).toContain("forbidden");
     expect((await read(code)).status).toBe("pending");
   });
 
   it("refuses a member cancelling their own order to get the stock back", async () => {
-    const { code, product } = await placeOrder(2, 5);
+    const { code, product, buyer } = await placeOrder(2, 5);
 
-    const { error } = await ayse.client.rpc("cancel_order", { order_code: code });
+    const { error } = await buyer.client.rpc("cancel_order", { order_code: code });
 
     expect(error?.message).toContain("forbidden");
     expect(await stockOf(product.id)).toBe(3);
   });
 
   it("refuses a member marking a shipped order delivered", async () => {
-    const { code } = await placeOrder();
+    const { code, buyer } = await placeOrder();
 
     await hilal.client.rpc("mark_paid", { order_code: code });
     await hilal.client.rpc("mark_shipped", {
@@ -265,7 +271,7 @@ describe("who may move an order along", () => {
       tracking_number: "1234567890",
     });
 
-    const { error } = await ayse.client.rpc("mark_delivered", { order_code: code });
+    const { error } = await buyer.client.rpc("mark_delivered", { order_code: code });
 
     expect(error?.message).toContain("forbidden");
     expect((await read(code)).status).toBe("shipped");

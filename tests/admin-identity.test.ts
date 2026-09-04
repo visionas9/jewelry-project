@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { supabase as anonymous } from "@/lib/supabase";
-import { createMember, makeAdmin, type Member } from "./support/accounts";
+import { createBuyer, createMember, makeAdmin, type Member } from "./support/accounts";
 import { createProduct } from "./support/products";
 
 // The shop has one administrator. These check what she can see that a member
@@ -47,8 +47,9 @@ describe("who the database thinks is an administrator", () => {
 describe("what the administrator can see", () => {
   it("reads an order placed by somebody else", async () => {
     const bracelet = await createProduct({ price: 250, stock: 5 });
+    const buyer = await createBuyer();
 
-    const { data: code } = await ayse.client.rpc("place_order", {
+    const { data: code } = await buyer.client.rpc("place_order", {
       items: [{ product_id: bracelet.id, quantity: 1 }],
       ...delivery,
     });
@@ -66,8 +67,9 @@ describe("what the administrator can see", () => {
 
   it("reads the lines of somebody else's order", async () => {
     const bracelet = await createProduct({ price: 250, stock: 5 });
+    const buyer = await createBuyer();
 
-    const { data: code } = await ayse.client.rpc("place_order", {
+    const { data: code } = await buyer.client.rpc("place_order", {
       items: [{ product_id: bracelet.id, quantity: 2 }],
       ...delivery,
     });
