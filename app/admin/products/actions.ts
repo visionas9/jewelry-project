@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { NOT_SAVED, wroteNothing } from "@/lib/admin-write";
 import { isKnownStone } from "@/lib/catalog";
 import { slugify } from "@/lib/slug";
 import { createServerSupabase } from "@/lib/supabase-server";
@@ -127,6 +128,7 @@ export async function updateProduct(
     .maybeSingle();
 
   if (error) return { ok: false, message: GENERIC };
+  if (wroteNothing(error, data)) return { ok: false, message: NOT_SAVED };
 
   refresh(data?.slug);
 
@@ -158,6 +160,8 @@ export async function deleteProduct(
     };
   }
 
+  if (wroteNothing(error, data)) return { ok: false, message: NOT_SAVED };
+
   refresh(data?.slug);
 
   return { ok: true, message: "Ürün silindi." };
@@ -187,8 +191,9 @@ export async function setStock(
     .maybeSingle();
 
   if (error) return { ok: false, message: GENERIC };
+  if (wroteNothing(error, data)) return { ok: false, message: NOT_SAVED };
 
   refresh(data?.slug);
 
-  return { ok: true, message: "Stok güncellendi." };
+  return { ok: true, message: `Stok ${stock} olarak kaydedildi.` };
 }

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { NOT_SAVED, wroteNothing } from "@/lib/admin-write";
 import { slugify } from "@/lib/slug";
 import { createServerSupabase } from "@/lib/supabase-server";
 
@@ -101,6 +102,7 @@ export async function updatePost(
     .maybeSingle();
 
   if (error) return { ok: false, message: GENERIC };
+  if (wroteNothing(error, data)) return { ok: false, message: NOT_SAVED };
 
   refresh(data?.slug);
 
@@ -122,6 +124,7 @@ export async function deletePost(
     .maybeSingle();
 
   if (error) return { ok: false, message: GENERIC };
+  if (wroteNothing(error, data)) return { ok: false, message: NOT_SAVED };
 
   refresh(data?.slug);
 
