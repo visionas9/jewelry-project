@@ -205,3 +205,26 @@ export function orderDeliveredEmail(order: OrderStatusEmail): Email {
       </td></tr>`),
   };
 }
+
+// The fatura, sent on its own.
+//
+// Only for an invoice that arrives after the payment mail has already gone.
+// Deliberately says nothing about the payment: that was announced once, and a
+// second message about money arriving reads as a second charge.
+export function orderInvoiceEmail(order: {
+  code: string;
+  fullName: string;
+}): Email {
+  return {
+    subject: `Faturanız — ${order.code}`,
+    html: WRAP(`
+      <tr><td style="font-size:16px;line-height:1.6;color:#1a1a1a;padding-bottom:12px;">Merhaba ${escape(order.fullName)},</td></tr>
+      <tr><td style="font-size:16px;line-height:1.7;color:#3d3d3d;padding-bottom:24px;">
+        <strong>${order.code}</strong> numaralı siparişinizin faturası ektedir.
+      </td></tr>
+      <tr><td style="font-size:14px;line-height:1.7;color:#6b6b6b;padding:0 0 32px;">
+        Faturanıza sipariş sayfanızdan da
+        <a href="${SITE.url}/orders/${order.code}" style="color:#1a1a1a;">ulaşabilirsiniz</a>.
+      </td></tr>`),
+  };
+}

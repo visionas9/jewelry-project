@@ -4,8 +4,11 @@ import { revalidatePath } from "next/cache";
 
 import { turkishTransitionError } from "@/lib/admin-orders";
 import { isKnownCarrier } from "@/lib/carriers";
+import { NOT_SAVED, wroteNothing } from "@/lib/admin-write";
+import { invoiceAttachment } from "@/lib/invoices";
 import {
   orderDeliveredEmail,
+  orderInvoiceEmail,
   orderPaidEmail,
   orderShippedEmail,
 } from "@/lib/order-emails";
@@ -62,6 +65,16 @@ export async function perform(
 
   if (intent === "paid") {
     ({ error } = await supabase.rpc("mark_paid", { order_code: code }));
+
+    // Uploaded by the browser straight into the private bucket before this ran;
+    // what arrives here is only where it landed. Recorded after the transition
+    // rather than before, so a refused mark_paid leaves no invoice pointing at
+    // an order that never moved.
+    const uploaded = String(formData.get("invoice_path") ?? "").trim();
+
+    if (!error && uploaded !== "") {
+      await supabase.from("orders").update({ invoice_path: uploaded }).eq("code", code);
+    }
   } else if (intent === "shipped") {
     const carrier = String(formData.get("carrier") ?? "").trim();
     const tracking = String(formData.get("tracking_number") ?? "").trim();
@@ -125,7 +138,7 @@ async function announce(
     const { data: order } = await supabase
       .from("orders")
       .select(
-        "code, total, full_name, carrier, tracking_number, order_items (quantity, unit_price, products (name))"
+        "code, total, full_name, carrier, tracking_number, invoice_path, order_items (quantity, unit_price, products (name))"
       )
       .eq("code", code)
       .maybeSingle();
@@ -167,8 +180,98 @@ async function announce(
               trackingNumber: order.tracking_number ?? "",
             });
 
-    await sendEmail({ to, ...mail });
+    // Only the paid mail carries the fatura — it is the one that tells somebody
+    // money changed hands. Null when there is no invoice yet, or when reading it
+    // failed, and the mail goes out plain rather than not at all.
+    const invoice =
+      intent === "paid"
+        ? await invoiceAttachment(supabase, code, order.invoice_path)
+        : null;
+
+    await sendEmail({
+      to,
+      ...mail,
+      ...(invoice ? { attachments: [invoice] } : {}),
+    });
   } catch (error) {
     console.error(`[email] could not announce ${intent} for ${code}`, error);
+  }
+}
+
+// Attaching a fatura after the fact.
+//
+// She can mark an order paid at eleven at night and issue the invoice in the
+// morning, so the upload is not tied to that moment. This records the file and
+// sends it on its own — the "ödemeniz alındı" mail has already gone, and
+// resending it would tell somebody twice that their money arrived.
+export async function attachInvoice(
+  code: string,
+  _previous: ActionResult,
+  formData: FormData
+): Promise<ActionResult> {
+  const supabase = await createServerSupabase();
+  const { data: isAdmin } = await supabase.rpc("is_admin");
+  if (isAdmin !== true) return { ok: false, message: FORBIDDEN };
+
+  const path = String(formData.get("invoice_path") ?? "").trim();
+
+  if (path === "") return { ok: false, message: "Önce fatura dosyasını seçin." };
+
+  const { data: saved, error } = await supabase
+    .from("orders")
+    .update({ invoice_path: path })
+    .eq("code", code)
+    .select("code, full_name")
+    .maybeSingle();
+
+  if (error) return { ok: false, message: "Fatura kaydedilemedi." };
+  // A write the policy refused comes back with no error and no row.
+  if (!saved || wroteNothing(error, saved)) {
+    return { ok: false, message: NOT_SAVED };
+  }
+
+  revalidatePath(`/admin/orders/${code}`);
+  revalidatePath(`/orders/${code}`);
+
+  const sent = await mailInvoice(supabase, code, path, saved.full_name);
+
+  return {
+    ok: true,
+    message: sent
+      ? "Fatura kaydedildi ve müşteriye gönderildi."
+      : "Fatura kaydedildi. E-posta gönderilemedi — sipariş sayfasından indirilebilir.",
+  };
+}
+
+// The fatura on its own, with nothing else claimed. Never throws: the file is
+// already saved by the time this runs, and a mail that does not go out must not
+// look like an upload that failed.
+async function mailInvoice(
+  supabase: Awaited<ReturnType<typeof createServerSupabase>>,
+  code: string,
+  path: string,
+  fullName: string
+): Promise<boolean> {
+  try {
+    const { data: to } = await supabase.rpc("order_buyer_email", {
+      order_code: code,
+    });
+
+    if (typeof to !== "string" || to === "") return false;
+
+    const invoice = await invoiceAttachment(supabase, code, path);
+
+    if (!invoice) return false;
+
+    const result = await sendEmail({
+      to,
+      ...orderInvoiceEmail({ code, fullName }),
+      attachments: [invoice],
+    });
+
+    return result !== "failed";
+  } catch (error) {
+    console.error(`[email] could not send the invoice for ${code}`, error);
+    return false;
   }
 }
