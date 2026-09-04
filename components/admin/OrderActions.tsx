@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import { perform } from "@/app/admin/orders/[code]/actions";
 import { SubmitButton } from "@/components/ui/SubmitButton";
+import { InvoiceUpload } from "@/components/admin/InvoiceUpload";
 import { CARRIERS } from "@/lib/carriers";
 import { type OrderStatus } from "@/lib/orders";
 
@@ -43,6 +44,9 @@ export function OrderActions({
   status: OrderStatus;
 }) {
   const [state, formAction] = useActionState(perform.bind(null, code), null);
+  // Where the fatura landed, if she picked one. Held here rather than in the
+  // upload control so the form can submit it alongside the transition.
+  const [invoice, setInvoice] = useState<string | null>(null);
 
   const main = MAIN[status];
   const canCancel = status === "pending" || status === "paid";
@@ -64,6 +68,20 @@ export function OrderActions({
       {main ? (
         <form action={formAction} className="mt-3 flex flex-col gap-3">
           <input type="hidden" name="intent" value={main.intent} />
+
+          {/* The fatura, in the same step as the payment. Optional: she can
+              mark an order paid at eleven at night and issue the invoice in the
+              morning, and attach it further down this page then. */}
+          {status === "pending" ? (
+            <div className="flex flex-col gap-2 rounded-2xl border border-line bg-sand/50 p-4">
+              <span className="text-sm text-muted">Fatura (isteğe bağlı)</span>
+              <InvoiceUpload code={code} path={invoice} onUploaded={setInvoice} />
+              <p className="text-xs leading-relaxed text-muted">
+                Eklerseniz “Ödemeniz alındı” e-postasına iliştirilir ve müşterinin
+                sipariş sayfasında görünür.
+              </p>
+            </div>
+          ) : null}
 
           {/* Shipping is the one move that carries information — the courier and
               the number the buyer will chase — so it asks for both in the same

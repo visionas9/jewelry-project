@@ -1,31 +1,11 @@
 import "server-only";
 
-import { randomUUID } from "node:crypto";
-
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { INVOICE_BUCKET, invoiceFilename } from "./invoices-paths";
 import type { Attachment } from "./send-email";
 
-export const INVOICE_BUCKET = "invoices";
-
-// Filed under the order it belongs to, so the bucket is browsable by a human
-// looking for one, and two orders can never collide.
-//
-// The timestamp sorts them for anyone reading the bucket; the random half is
-// what actually guarantees a new name. A timestamp alone is not enough — two
-// uploads inside the same millisecond would produce one path, and the second
-// fatura would quietly replace the first. Re-issuing an invoice must leave the
-// earlier document in place: if she ever has to explain which one went out
-// when, both need to still exist.
-export function invoicePath(code: string, extension = "pdf"): string {
-  return `${code}/${Date.now()}-${randomUUID().slice(0, 8)}.${extension}`;
-}
-
-// What the buyer sees on their download. Their own order code, not the storage
-// path, which means nothing to them.
-export function invoiceFilename(code: string): string {
-  return `${code}-fatura.pdf`;
-}
+export { INVOICE_BUCKET, invoiceFilename, invoicePath } from "./invoices-paths";
 
 /**
  * The fatura as an email attachment, or null.
