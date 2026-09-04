@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { invoiceFilename, invoicePath } from "@/lib/invoices";
+import { invoiceFilename, invoicePath } from "@/lib/invoices-paths";
 
 describe("where an invoice is filed", () => {
   it("lives under its own order", () => {
