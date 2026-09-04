@@ -1,15 +1,21 @@
+import { randomUUID } from "node:crypto";
+
 import { adminClient } from "./accounts";
 
 // Setup only, like createMember. The seeded bracelets all carry a stock of 100,
 // which is no use to a test about running out — these are made to order with
 // the exact stock the test needs.
+// The counter only makes the names readable. Uniqueness comes from the random
+// half: the counter restarts in every worker process, so two files running in
+// parallel both reach 1 — and a timestamp does not separate them either when
+// they get there in the same millisecond.
 let counter = 0;
 
 export async function createProduct(fields: {
   price: number;
   stock: number;
 }): Promise<{ id: number; price: number }> {
-  const slug = `test-bileklik-${++counter}-${Date.now()}`;
+  const slug = `test-bileklik-${++counter}-${randomUUID().slice(0, 8)}`;
 
   const { data, error } = await adminClient()
     .from("products")
