@@ -9,8 +9,8 @@ import Link from "next/link";
 
 const SECTIONS = [
   { label: "Siparişler", href: "/admin" as const, ready: true },
-  { label: "Stok", ready: false },
-  { label: "Ürünler", ready: false },
+  { label: "Stok", href: "/admin/stock" as const, ready: true },
+  { label: "Ürünler", href: "/admin/products" as const, ready: true },
   { label: "Blog", href: "/admin/blog" as const, ready: true },
   { label: "Yorumlar", ready: false },
 ] as const;
