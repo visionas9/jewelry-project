@@ -11,7 +11,7 @@ const SECTIONS = [
   { label: "Siparişler", href: "/admin" as const, ready: true },
   { label: "Stok", ready: false },
   { label: "Ürünler", ready: false },
-  { label: "Blog", ready: false },
+  { label: "Blog", href: "/admin/blog" as const, ready: true },
   { label: "Yorumlar", ready: false },
 ] as const;
 
