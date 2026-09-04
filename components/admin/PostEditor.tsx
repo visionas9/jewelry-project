@@ -84,7 +84,7 @@ export function PostEditor({
           name="title"
           required
           defaultValue={post?.title}
-          placeholder="Örn. Taşın hikâyesi"
+          placeholder="Örn. Kılıçlar Ası ne anlatır?"
           className={`${FIELD} mt-1`}
         />
       </label>
