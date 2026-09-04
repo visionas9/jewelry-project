@@ -38,7 +38,7 @@ export function CartContents({ products }: { products: Product[] }) {
       <div className="mt-10 rounded-2xl border border-line bg-sand px-6 py-14 text-center">
         <p className="font-display text-xl font-medium">Sepetin henüz boş</p>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted">
-          Beğendiğin bileklikleri buraya ekle, sonra rahat rahat karar ver.
+          Beğendiğiniz bileklikleri sepetinize ekleyin, karar vermek için acele etmeyin.
         </p>
         <Link
           href="/products"

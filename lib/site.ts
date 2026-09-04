@@ -5,9 +5,9 @@ export const SITE = {
   // Always lowercase, everywhere. The header and footer force it in CSS too, so
   // a stray capital here still renders correctly.
   name: "ishin denshin",
-  tagline: "Tek tek elde dizilen doğal taş bileklikler",
+  tagline: "El yapımı doğal taş bileklikler",
   description:
-    "Her bileklik gerçek doğal taşlarla, tek tek elde diziliyor. Küçük üretim, sade tasarım — kendine ya da sevdiğin birine.",
+    "Gerçek taş, el yapımı, sade tasarım.",
   // Absolute base for OG/canonical URLs. Social apps can't resolve "/images/x.jpg".
   //
   // Three sources, most specific first:

@@ -8,7 +8,7 @@ export default function ProductNotFound() {
         Bu bilekliği bulamadık
       </h1>
       <p className="mt-4 max-w-md text-sm leading-relaxed text-muted">
-        Aradığın model kaldırılmış olabilir ya da adreste küçük bir yazım
+        Aradığınız model kaldırılmış olabilir ya da adreste küçük bir yazım
         hatası vardır. Olur öyle.
       </p>
 

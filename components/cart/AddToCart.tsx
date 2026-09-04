@@ -67,7 +67,7 @@ export function AddToCart({ product }: { product: Product }) {
           disabled={!canAdd}
           className="flex-1 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-clay disabled:bg-line disabled:text-muted"
         >
-          {canAdd ? "Sepete ekle" : "Stoktakilerin hepsi sepetinde"}
+          {canAdd ? "Sepete ekle" : "Stoktakilerin hepsi sepetinizde"}
         </button>
       </div>
 

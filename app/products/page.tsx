@@ -57,7 +57,7 @@ async function ProductResults({
   if (products.length === 0) {
     return isFiltered ? (
       <EmptyState
-        title="Aradığın gibi bir bileklik çıkmadı"
+        title="Aradığınıza uygun bir bileklik bulunamadı"
         body={describeFilters(searchTerm, activeStone)}
         action={
           <Link
