@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 
-import { setStock, type CatalogResult } from "@/app/admin/products/actions";
+import { setStock, type StockResult } from "@/app/admin/stock/actions";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import type { AdminProduct } from "@/lib/catalog";
 
@@ -10,7 +10,7 @@ import type { AdminProduct } from "@/lib/catalog";
 // counting a shelf is the one job where a form per product would be slower than
 // the counting.
 export function StockRow({ product }: { product: AdminProduct }) {
-  const [state, formAction] = useActionState<CatalogResult, FormData>(
+  const [state, formAction] = useActionState<StockResult, FormData>(
     setStock.bind(null, product.id),
     null
   );

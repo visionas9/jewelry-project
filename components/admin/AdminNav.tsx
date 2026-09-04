@@ -1,18 +1,19 @@
 import Link from "next/link";
 
-// The shape of the panel to come. Only Siparişler works today; the rest are
-// shown so it is clear what this grows into, but they are plain text, not links
-// — there is no half-built page behind them to fall into.
+// The panel's three sections.
 //
-// Rendered as a horizontal, scrollable strip so it stays usable one-handed on a
-// phone without wrapping into something that pushes the orders off the screen.
+// Orders is the reason it exists; stock is the number that changes every week;
+// the blog is the writing. Adding and removing products, and comments on posts,
+// were both considered and dropped — rare enough or far enough off that a
+// section for them would be a door onto an empty room.
+//
+// A horizontal, scrollable strip so it stays usable one-handed on a phone
+// without wrapping into something that pushes the content off the screen.
 
 const SECTIONS = [
-  { label: "Siparişler", href: "/admin" as const, ready: true },
-  { label: "Stok", href: "/admin/stock" as const, ready: true },
-  { label: "Ürünler", href: "/admin/products" as const, ready: true },
-  { label: "Blog", href: "/admin/blog" as const, ready: true },
-  { label: "Yorumlar", ready: false },
+  { label: "Siparişler", href: "/admin" },
+  { label: "Stok", href: "/admin/stock" },
+  { label: "Blog", href: "/admin/blog" },
 ] as const;
 
 export function AdminNav({ active }: { active: string }) {
@@ -20,23 +21,7 @@ export function AdminNav({ active }: { active: string }) {
     <nav aria-label="Yönetim menüsü" className="-mx-5 md:mx-0">
       <ul className="flex gap-2 overflow-x-auto px-5 pb-1 md:px-0">
         {SECTIONS.map((section) => {
-          const isActive = section.ready && section.href === active;
-
-          if (!section.ready) {
-            return (
-              <li key={section.label} className="shrink-0">
-                <span
-                  aria-disabled="true"
-                  className="inline-flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm text-muted/70"
-                >
-                  {section.label}
-                  <span className="rounded-full bg-sand px-2 py-0.5 text-[0.65rem] tracking-wide text-muted">
-                    yakında
-                  </span>
-                </span>
-              </li>
-            );
-          }
+          const isActive = section.href === active;
 
           return (
             <li key={section.label} className="shrink-0">

@@ -89,6 +89,24 @@ describe("who may change the catalog", () => {
     expect(Number(data?.price)).toBe(250);
   });
 
+  it("refuses a member with no error at all, which is the trap", async () => {
+    const bracelet = await createProduct({ price: 250, stock: 2 });
+
+    const { data, error } = await ayse.client
+      .from("products")
+      .update({ stock: 999 })
+      .eq("id", bracelet.id)
+      .select("slug")
+      .maybeSingle();
+
+    // This is why lib/admin-write.ts exists. A blocked update is not an error:
+    // the statement ran, matched no rows, and succeeded. Checking `error` alone
+    // reports it as saved.
+    expect(error).toBeNull();
+    expect(data).toBeNull();
+    expect(await stockOf(bracelet.id)).toBe(2);
+  });
+
   it("refuses a signed-out visitor", async () => {
     const { error } = await anonymous
       .from("products")
