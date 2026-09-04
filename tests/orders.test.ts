@@ -1,7 +1,7 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import { supabase as anonymous } from "@/lib/supabase";
-import { createMember, type Member } from "./support/accounts";
+import { createBuyer, type Member } from "./support/accounts";
 import { createProduct, stockOf } from "./support/products";
 
 // Every assertion goes through a client holding the public anon key — the same
@@ -12,9 +12,12 @@ import { createProduct, stockOf } from "./support/products";
 let ayse: Member;
 let mehmet: Member;
 
-beforeAll(async () => {
-  ayse = await createMember("siparis-ayse@example.com", "cok-gizli-parola-1");
-  mehmet = await createMember("siparis-mehmet@example.com", "cok-gizli-parola-2");
+// A fresh pair for every test rather than one pair for the file. A member may
+// hold only one unpaid order at a time, so a buyer carried between tests would
+// have their second order refused for that reason instead of the one under
+// test.
+beforeEach(async () => {
+  [ayse, mehmet] = await Promise.all([createBuyer(), createBuyer()]);
 });
 
 const delivery = {
@@ -138,8 +141,16 @@ describe("stock", () => {
     // serialise by luck — they finish before they can collide — and a test
     // that passes because nothing overlapped proves nothing about the thing it
     // claims. Eight is enough that some genuinely overlap.
-    const attempts = Array.from({ length: 8 }, (_, index) =>
-      (index % 2 === 0 ? ayse : mehmet).client.rpc("place_order", {
+    //
+    // Eight different people, too: one member may hold only one unpaid order,
+    // so reusing a pair here would have most attempts refused for that instead
+    // of for stock, and the race being tested would never happen.
+    const rivals = await Promise.all(
+      Array.from({ length: 8 }, () => createBuyer())
+    );
+
+    const attempts = rivals.map((rival) =>
+      rival.client.rpc("place_order", {
         items: [{ product_id: bracelet.id, quantity: 1 }],
         ...delivery,
       })
@@ -202,8 +213,12 @@ describe("the order code", () => {
   it("is different for every order", async () => {
     const codes = new Set<string>();
 
+    // A buyer each, since one member may hold only one unpaid order. The code
+    // comes from a sequence shared by the whole shop, so three orders by three
+    // people is the same test of it as three by one.
     for (let i = 0; i < 3; i += 1) {
-      const { data: code } = await ayse.client.rpc("place_order", {
+      const buyer = await createBuyer();
+      const { data: code } = await buyer.client.rpc("place_order", {
         items: [{ product_id: 1, quantity: 1 }],
         ...delivery,
       });

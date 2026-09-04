@@ -141,6 +141,21 @@ export const ORDER_STATUS_LABELS = {
 
 export type OrderStatus = keyof typeof ORDER_STATUS_LABELS;
 
+// The outstanding order's code, when the refusal was about one. Returned
+// separately from the sentence so the page can link to it rather than asking
+// somebody to find it themselves.
+export function unpaidOrderCode(error: unknown): string | null {
+  if (!error || typeof error !== "object") return null;
+
+  const { message, details } = error as { message?: unknown; details?: unknown };
+
+  if (typeof message !== "string" || !message.includes("unpaid_order_exists")) {
+    return null;
+  }
+
+  return typeof details === "string" && details !== "" ? details : null;
+}
+
 export const GENERIC_ORDER_ERROR =
   "Siparişiniz alınamadı. Lütfen birazdan tekrar deneyin.";
 
@@ -153,6 +168,15 @@ export function turkishOrderError(error: unknown): string {
   const { message, details } = error as { message?: unknown; details?: unknown };
 
   if (typeof message !== "string") return GENERIC_ORDER_ERROR;
+
+  if (message.includes("unpaid_order_exists")) {
+    // The outstanding code travels in DETAIL, because "you have an unpaid
+    // order" is not something anybody can act on when they cannot remember
+    // which one. The checkout page turns it into a link.
+    return typeof details === "string" && details !== ""
+      ? `${details} numaralı siparişinizin ödemesi bekleniyor. Yeni sipariş verebilmek için önce onu tamamlamanız gerekiyor.`
+      : "Ödemesi beklenen bir siparişiniz var. Yeni sipariş verebilmek için önce onu tamamlamanız gerekiyor.";
+  }
 
   if (message.includes("insufficient_stock")) {
     // The name of what ran out travels in DETAIL, because "bir ürün" is not
