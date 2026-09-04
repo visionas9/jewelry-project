@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import { totpCode } from "./totp";
@@ -97,4 +99,19 @@ export async function makeAdmin(member: Member): Promise<void> {
   if (verifyError) {
     throw new Error(`Could not verify the factor: ${verifyError.message}`);
   }
+}
+
+/**
+ * A member nobody else is using.
+ *
+ * place_order allows one unpaid order per member, so a test that places an
+ * order needs a buyer of its own: sharing one across tests makes the second
+ * order fail for a reason the test is not about. The address is unique per
+ * call, so files running in parallel workers cannot collide.
+ */
+export function createBuyer(): Promise<Member> {
+  return createMember(
+    `alici-${randomUUID().slice(0, 8)}@example.com`,
+    "cok-gizli-parola-alici"
+  );
 }
