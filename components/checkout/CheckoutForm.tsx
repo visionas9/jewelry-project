@@ -164,6 +164,19 @@ export function CheckoutForm() {
             className="rounded-2xl border border-brass/40 bg-brass/10 px-4 py-3 text-sm leading-relaxed text-brass"
           >
             {failed.message}
+            {/* A way there, not just the news. Somebody told they have an
+                unpaid order should not have to go and find it. */}
+            {failed.unpaidCode ? (
+              <>
+                {" "}
+                <Link
+                  href={`/orders/${failed.unpaidCode}`}
+                  className="text-ink underline underline-offset-4"
+                >
+                  Siparişi görüntüle
+                </Link>
+              </>
+            ) : null}
           </p>
         ) : null}
 

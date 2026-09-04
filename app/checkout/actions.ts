@@ -10,6 +10,7 @@ import {
 import {
   priceCart,
   turkishOrderError,
+  unpaidOrderCode,
   type CartLine,
   type CartSummary,
 } from "@/lib/orders";
@@ -59,6 +60,9 @@ export type CheckoutState =
       // Anything not about one field: stock that ran out, a bracelet pulled
       // from the shop.
       message?: string;
+      // Set only when the refusal was an unpaid order still outstanding. The
+      // form turns it into a link, so nobody has to go and find it.
+      unpaidCode?: string;
       // Echoed back so a rejected submit does not empty the form. React resets
       // an uncontrolled form after an action, so the values have to come from
       // somewhere.
@@ -117,6 +121,7 @@ export async function placeOrder(
       status: "error",
       fieldErrors: {},
       message: turkishOrderError(error),
+      unpaidCode: unpaidOrderCode(error) ?? undefined,
       values,
     };
   }
