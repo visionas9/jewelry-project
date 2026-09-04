@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { SITE } from "@/lib/site";
@@ -37,6 +38,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        {/* Page views, counted by Vercel. Cookieless and with no visitor
+            identifier, which is why it needs no consent banner — there is
+            nothing here to ask permission for. It only reports from a real
+            deployment, so it is inert in development. */}
+        <Analytics />
       </body>
     </html>
   );
