@@ -8,9 +8,9 @@ import { coverImageUrl, POST_COLUMNS, toPost } from "@/lib/posts";
 import { supabase } from "@/lib/supabase";
 
 export const metadata: Metadata = {
-  title: "Günlük",
+  title: "Blog",
   description:
-    "Taşlar, bakım önerileri ve atölyeden notlar — ishin denshin günlüğü.",
+    "Tarot üzerine notlar, kart yorumları ve okuma önerileri.",
 };
 
 // The session-free client, like the catalog: a blog post is the same for
@@ -18,9 +18,9 @@ export const metadata: Metadata = {
 export default function BlogPage() {
   return (
     <section className="mx-auto max-w-4xl px-5 py-14 md:px-8 md:py-20">
-      <h1 className="font-display text-3xl md:text-4xl">Günlük</h1>
+      <h1 className="font-display text-3xl md:text-4xl">Blog</h1>
       <p className="mt-3 max-w-lg text-sm leading-relaxed text-muted">
-        Taşlar, bakım önerileri ve atölyeden notlar.
+        Tarot üzerine notlar, kart yorumları ve okuma önerileri.
       </p>
 
       <Suspense fallback={<Placeholder />}>

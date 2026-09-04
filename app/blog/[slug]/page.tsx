@@ -63,7 +63,7 @@ async function PostBody({
         href="/blog"
         className="text-sm text-muted transition-colors hover:text-ink"
       >
-        ← Günlük
+        ← Blog
       </Link>
 
       <p className="mt-6 text-xs text-muted">{formatDate(post.publishedAt)}</p>
