@@ -57,6 +57,7 @@ export const AUTH_URL =
 export const NAV_LINKS = [
   { href: "/", label: "Ana Sayfa" },
   { href: "/products", label: "Bileklikler" },
+  { href: "/blog", label: "Günlük" },
   { href: "/cart", label: "Sepet" },
   // No sign-up link here. The header's auth slot is rendered by HeaderAuth
   // instead, because what belongs there depends on whether anyone is signed in
