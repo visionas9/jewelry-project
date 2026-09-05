@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { createBrowserSupabase } from "@/lib/supabase-browser";
 
 // The one part of the header that knows who you are, and deliberately a client
-// island — the same arrangement as CartBadge. Reading the session in the root
+// island — the same arrangement as CartIcon. Reading the session in the root
 // layout instead would opt every page on the site out of its static shell: no
 // error, no failing test, just a site that quietly got slower.
 export function HeaderAuth() {

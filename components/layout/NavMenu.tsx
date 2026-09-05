@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 
-import { CartBadge } from "@/components/cart/CartBadge";
-
 type NavLink = { href: string; label: string };
 
 // The links arrive as a prop rather than from lib/site: that module reads
@@ -59,7 +57,6 @@ export function NavMenu({ links }: { links: readonly NavLink[] }) {
                   className="flex items-center border-b border-line/60 py-4 text-base text-muted transition-colors last:border-0 hover:text-ink"
                 >
                   {link.label}
-                  {link.href === "/cart" ? <CartBadge /> : null}
                 </Link>
               </li>
             ))}
