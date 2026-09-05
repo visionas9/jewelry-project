@@ -1,4 +1,7 @@
+import Link from "next/link";
 import { cacheLife } from "next/cache";
+
+import { LEGAL_DOCUMENTS, legalHref } from "@/lib/legal";
 import { SITE } from "@/lib/site";
 
 // `use cache` because of the copyright year. Cache Components refuses to
@@ -14,14 +17,34 @@ export async function Footer() {
 
   return (
     <footer className="mt-24 border-t border-line bg-sand">
-      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-10 text-sm text-muted md:flex-row md:items-center md:justify-between md:px-8">
-        <p className="font-display text-base lowercase tracking-[0.02em] text-ink">
-          {SITE.name}
-        </p>
-        <p>{SITE.tagline}</p>
-        <p>
-          © {year} {SITE.name}
-        </p>
+      <div className="mx-auto max-w-6xl px-5 py-10 text-sm text-muted md:px-8">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <p className="font-display text-base lowercase tracking-[0.02em] text-ink">
+            {SITE.name}
+          </p>
+          <p>{SITE.tagline}</p>
+          <p>
+            © {year} {SITE.name}
+          </p>
+        </div>
+
+        <nav
+          aria-label="Yasal bilgiler"
+          className="mt-8 border-t border-line pt-6"
+        >
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+            {LEGAL_DOCUMENTS.map((document) => (
+              <li key={document.slug}>
+                <Link
+                  href={legalHref(document.slug)}
+                  className="transition-colors hover:text-ink"
+                >
+                  {document.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
     </footer>
   );
