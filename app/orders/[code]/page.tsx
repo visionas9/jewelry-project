@@ -8,6 +8,7 @@ import { CopyIban } from "@/components/checkout/CopyIban";
 import { requireMember } from "@/lib/auth-guard";
 import { BANK } from "@/lib/bank";
 import { formatDateTime, formatPrice } from "@/lib/format";
+import { invoiceDownloadUrl } from "@/lib/invoices";
 import { ORDER_STATUS_LABELS, type OrderStatus } from "@/lib/orders";
 
 export const metadata: Metadata = {
@@ -39,7 +40,7 @@ async function Order({ params }: { params: PageProps<"/orders/[code]">["params"]
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, code, status, total, full_name, phone, city, district, address, created_at, paid_at, shipped_at, delivered_at, cancelled_at, carrier, tracking_number"
+      "id, code, status, total, full_name, phone, city, district, address, created_at, paid_at, shipped_at, delivered_at, cancelled_at, carrier, tracking_number, invoice_path"
     )
     .eq("code", code)
     .maybeSingle();
@@ -52,6 +53,14 @@ async function Order({ params }: { params: PageProps<"/orders/[code]">["params"]
     .eq("order_id", order.id);
 
   const waiting = order.status === "pending";
+
+  // Minted per request and good for a few minutes. A link stored in the
+  // database would outlive the reason it was created; this one cannot.
+  const invoiceUrl = await invoiceDownloadUrl(
+    supabase,
+    order.code,
+    order.invoice_path
+  );
 
   // Only what has actually happened, in the order it happened. The buyer sees
   // the same facts the panel does — nothing is hidden from the person whose
@@ -181,6 +190,21 @@ async function Order({ params }: { params: PageProps<"/orders/[code]">["params"]
           {order.district} / {order.city}
         </p>
       </div>
+
+      {invoiceUrl ? (
+        <div className="mt-6 rounded-2xl border border-line px-5 py-6">
+          <h2 className="font-display text-xl">Fatura</h2>
+          <p className="mt-3 text-sm leading-relaxed text-muted">
+            Siparişinizin faturasını buradan indirebilirsiniz.
+          </p>
+          <a
+            href={invoiceUrl}
+            className="mt-4 inline-flex items-center justify-center rounded-full border border-line px-7 py-3 text-sm transition-colors hover:border-ink"
+          >
+            Faturayı indir (PDF)
+          </a>
+        </div>
+      ) : null}
 
       <div className="mt-6 rounded-2xl border border-line px-5 py-6">
         <h2 className="font-display text-xl">Siparişinizin geçmişi</h2>

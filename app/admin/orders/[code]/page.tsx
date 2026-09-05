@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
+import { AttachInvoice } from "@/components/admin/AttachInvoice";
 import { CopyField } from "@/components/admin/CopyField";
 import { OrderActions } from "@/components/admin/OrderActions";
 import { OrderStatusBadge } from "@/components/admin/OrderStatusBadge";
@@ -38,7 +39,7 @@ async function Order({
   const { data: order } = await supabase
     .from("orders")
     .select(
-      "id, code, status, total, full_name, phone, city, district, address, created_at, paid_at, shipped_at, delivered_at, cancelled_at, carrier, tracking_number"
+      "id, code, status, total, full_name, phone, city, district, address, created_at, paid_at, shipped_at, delivered_at, cancelled_at, carrier, tracking_number, invoice_path"
     )
     .eq("code", code)
     .maybeSingle();
@@ -143,6 +144,8 @@ async function Order({
           />
         </div>
       </div>
+
+      <AttachInvoice code={order.code} hasInvoice={Boolean(order.invoice_path)} />
 
       <div className="mt-6 rounded-2xl border border-line px-5 py-6">
         <h2 className="font-display text-xl">Geçmiş</h2>

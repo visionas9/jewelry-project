@@ -18,10 +18,26 @@ export const ORDER_EMAIL = process.env.ORDER_EMAIL || FROM_EMAIL;
 
 export type SendResult = "sent" | "skipped" | "failed";
 
+// A file riding along with the mail. `content` is base64 rather than a URL:
+// Resend will fetch a `path` for us, but the invoice bucket is private, so that
+// would mean minting a signed URL and handing a customer's fatura to a third
+// party to go and collect. Sending the bytes keeps the file private and removes
+// a step that can fail.
+//
+// Resend's ceiling is 40MB after encoding, and base64 inflates by about a
+// third. An e-Arşiv PDF is a hundred kilobytes, so there is nothing to guard
+// against here beyond saying why.
+export type Attachment = {
+  filename: string;
+  /** base64, no data: prefix. */
+  content: string;
+};
+
 export async function sendEmail(mail: {
   to: string;
   subject: string;
   html: string;
+  attachments?: Attachment[];
 }): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY;
 
@@ -29,7 +45,12 @@ export async function sendEmail(mail: {
   // would have been sent keeps branches from mailing real people, and keeps a
   // missing key from failing an order that has already been written.
   if (!key) {
-    console.info(`[email] skipped (no RESEND_API_KEY): ${mail.subject} → ${mail.to}`);
+    const carrying = mail.attachments?.length
+      ? ` (+${mail.attachments.length} ek)`
+      : "";
+    console.info(
+      `[email] skipped (no RESEND_API_KEY): ${mail.subject} → ${mail.to}${carrying}`
+    );
     return "skipped";
   }
 
@@ -40,6 +61,7 @@ export async function sendEmail(mail: {
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
       },
+      // attachments is omitted rather than sent empty when there is none.
       body: JSON.stringify({ from: FROM, ...mail }),
     });
 
