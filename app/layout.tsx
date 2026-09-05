@@ -3,6 +3,7 @@ import { Fraunces, Karla } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { CookieNotice } from "@/components/layout/CookieNotice";
 import { SITE } from "@/lib/site";
 import "./globals.css";
 
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <CookieNotice />
         {/* Page views, counted by Vercel. Cookieless and with no visitor
             identifier, which is why it needs no consent banner — there is
             nothing here to ask permission for. It only reports from a real

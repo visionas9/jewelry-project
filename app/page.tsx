@@ -10,40 +10,41 @@ import { SITE } from "@/lib/site";
 export default function HomePage() {
   return (
     <>
-      {/* Hero — stacked on phones, two columns from md up. No search box: the
-          shop is small enough that the whole shelf sits below this, and a
-          search field above a complete catalogue is a question nobody needed
-          to be asked. */}
-      <section className="mx-auto max-w-6xl px-5 py-14 md:px-8 md:py-24">
-        <div className="grid gap-10 md:grid-cols-2 md:items-center md:gap-16">
-          <div className="flex flex-col items-start gap-6">
-            <p className="text-xs tracking-[0.25em] text-clay uppercase">
-              El emeği · Gerçek taş
-            </p>
-            <h1 className="font-display text-4xl leading-[1.1] font-medium text-balance md:text-6xl">
-              Her taşın kendi hikâyesi var
-            </h1>
-            <p className="max-w-md text-base leading-relaxed text-muted md:text-lg">
-              {SITE.description}
-            </p>
-            <Link
-              href="/products"
-              className="mt-2 inline-flex items-center justify-center rounded-full bg-clay px-7 py-3 text-sm tracking-wide text-cream transition-colors hover:bg-ink"
-            >
-              Bilekliklere göz atın
-            </Link>
-          </div>
+      {/* Hero — the photograph is the page, with the line laid over it.
+          Full-bleed on purpose: `main` adds no padding of its own, so this
+          runs edge to edge at every width. */}
+      <section className="relative isolate flex min-h-[28rem] items-end overflow-hidden md:min-h-[36rem]">
+        <Image
+          src="/images/lapis-blue-1.jpg"
+          alt="Lapis taşlı el yapımı bileklik"
+          fill
+          preload
+          sizes="100vw"
+          className="-z-10 object-cover"
+        />
 
-          <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-sand md:aspect-[3/4]">
-            <Image
-              src="/images/lapis-blue-1.jpg"
-              alt="Lapis taşlı el yapımı bileklik"
-              fill
-              preload
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className="object-cover"
-            />
-          </div>
+        {/* The photo is a bright one — white cloth, gold charms — so cream
+            text needs something under it. Darkest at the bottom, where the
+            words are, and close to clear at the top so the picture still
+            reads as a picture. */}
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/90 via-ink/60 to-ink/20"
+        />
+
+        <div className="mx-auto w-full max-w-6xl px-5 pt-24 pb-14 md:px-8 md:pt-32 md:pb-20">
+          <h1 className="max-w-xl font-display text-4xl leading-[1.1] font-medium text-balance text-cream md:text-6xl">
+            Her taşın kendi hikâyesi var
+          </h1>
+          <p className="mt-4 max-w-md text-base leading-relaxed text-cream/85 md:text-lg">
+            {SITE.description}
+          </p>
+          <Link
+            href="/products"
+            className="mt-8 inline-flex items-center justify-center rounded-full bg-cream px-7 py-3 text-sm tracking-wide text-ink transition-colors hover:bg-clay hover:text-cream"
+          >
+            Bilekliklere göz atın
+          </Link>
         </div>
       </section>
 
