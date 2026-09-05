@@ -51,27 +51,44 @@ export function HeaderAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  return (
-    // Both labels are stacked in one grid cell, so the slot is always as wide
-    // as the longer of the two. Without it the nav is right-anchored against a
-    // link that isn't there yet, and every item visibly jumps left when the
-    // session resolves.
-    <span className="grid justify-items-start">
-      <span aria-hidden className="invisible col-start-1 row-start-1">
-        Giriş Yap
-      </span>
-      <span aria-hidden className="invisible col-start-1 row-start-1">
-        Hesabım
-      </span>
+  // An icon in both states, so the box is the same size whichever answer
+  // arrives and nothing beside it moves when it does. The label is what
+  // carries the difference — to a screen reader, and on hover.
+  const label = signedIn ? "Hesabım" : "Giriş Yap";
 
-      {signedIn === null ? null : (
-        <Link
-          href={signedIn ? "/account" : "/signin"}
-          className="col-start-1 row-start-1 inline-flex items-center text-muted transition-colors hover:text-ink"
-        >
-          {signedIn ? "Hesabım" : "Giriş Yap"}
-        </Link>
-      )}
-    </span>
+  if (signedIn === null) return <AuthIconPlaceholder />;
+
+  return (
+    <Link
+      href={signedIn ? "/account" : "/signin"}
+      title={label}
+      className="flex size-10 items-center justify-center rounded-full text-muted transition-colors hover:text-ink"
+    >
+      <AccountIcon />
+      <span className="sr-only">{label}</span>
+    </Link>
+  );
+}
+
+// Holds the icon's place while the session is still an open question.
+export function AuthIconPlaceholder() {
+  return <span aria-hidden className="block size-10" />;
+}
+
+function AccountIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="size-6"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+    </svg>
   );
 }
