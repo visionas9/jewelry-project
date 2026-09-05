@@ -32,7 +32,10 @@ export async function Footer() {
           aria-label="Yasal bilgiler"
           className="mt-8 border-t border-line pt-6"
         >
-          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+          {/* One per line on a phone. Wrapped, these seven titles are long
+              enough to break at different points on every row, which reads as
+              a mistake rather than as a list. */}
+          <ul className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-2">
             {LEGAL_DOCUMENTS.map((document) => (
               <li key={document.slug}>
                 <Link
