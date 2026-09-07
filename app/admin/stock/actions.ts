@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { updateTag } from "next/cache";
 
 import { NOT_SAVED, wroteNothing } from "@/lib/admin-write";
 import { createServerSupabase } from "@/lib/supabase-server";
@@ -20,7 +20,7 @@ export type StockResult = { ok: boolean; message: string } | null;
 export async function setStock(
   id: number,
   _previous: StockResult,
-  formData: FormData
+  formData: FormData,
 ): Promise<StockResult> {
   const supabase = await createServerSupabase();
   const { data: isAdmin } = await supabase.rpc("is_admin");
@@ -51,10 +51,9 @@ export async function setStock(
   // nothing.
   if (wroteNothing(error, data)) return { ok: false, message: NOT_SAVED };
 
-  // Stock appears on nearly every page, so one change makes most of the site
-  // stale at once.
-  revalidatePath("/", "layout");
-  if (data?.slug) revalidatePath(`/products/${data.slug}`);
+  // Every cached read of the catalog carries the products tag, so one call
+  // clears the stock everywhere it appears without touching the rest of the site.
+  updateTag("products");
 
   return { ok: true, message: `Stok ${stock} olarak kaydedildi.` };
 }
