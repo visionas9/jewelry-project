@@ -3,6 +3,8 @@
 // Pure and framework-free: the checkout action calls it, and the tests call it
 // without a browser or a database in the way.
 
+import { isProvince, isTurkishPhone } from "@/lib/provinces";
+
 export const DELIVERY_FIELDS = [
   "fullName",
   "phone",
@@ -34,10 +36,14 @@ export function validateDelivery(
     }
   }
 
-  // Turkish numbers are ten digits after the leading zero, and people write
-  // them with spaces, dashes and brackets. The digits are what matter.
-  if (!errors.phone && values.phone.replace(/\D/g, "").length < 10) {
-    errors.phone = "Telefon numaranızı kontrol edin.";
+  if (!errors.city && !isProvince(values.city)) {
+    errors.city = "Listeden bir il seçin. Yalnızca Türkiye içine gönderim yapılmaktadır.";
+  }
+
+  // People write numbers with spaces, dashes, brackets and +90. The digits are
+  // what matter, and they have to reach a Turkish courier.
+  if (!errors.phone && !isTurkishPhone(values.phone)) {
+    errors.phone = "Türkiye'deki bir telefon numarası girin.";
   }
 
   return errors;
