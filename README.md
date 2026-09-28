@@ -41,7 +41,7 @@ second-factor login all had to be right, not just look right.
 - **Blog, legal pages, cookie notice, analytics.**
 
 **By the numbers** — built in about two weeks (23 Aug – 7 Sep 2026): ~200
-commits, 50 pull requests, 37 issues, 15 database migrations, ~200 tests that
+commits, 50+ pull requests, 37 issues, 16 database migrations, ~200 tests that
 run against a real Postgres.
 
 **What I'd point a reviewer at**
