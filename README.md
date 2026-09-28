@@ -4,9 +4,14 @@ A real online shop for a small family jewelry business — handmade natural-ston
 bracelets, sold in Turkey, run by one person from her phone.
 
 **Live:** [ishindenshinstore.com](https://ishindenshinstore.com) ·
+**Demo:** [90-second video](https://youtu.be/5uoEkzGjPag) ·
 **Stack:** Next.js 16 (App Router) · React 19 · TypeScript · Tailwind v4 ·
 Supabase (Postgres, Auth, Storage) · Resend · Vercel
 
+<p>
+  <a href="https://youtu.be/5uoEkzGjPag"><img src="docs/screenshots/demo-video.jpg" alt="Watch the 90-second demo on YouTube" width="100%"></a>
+</p>
+<p align="center"><a href="https://youtu.be/5uoEkzGjPag">▶ Watch the 90-second demo</a> — shopper to checkout, then the owner's panel: second factor, invoice, shipping.</p>
 <p>
   <img src="docs/screenshots/home-desktop.jpg" alt="Home page" width="100%">
 </p>
