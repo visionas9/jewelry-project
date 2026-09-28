@@ -42,6 +42,23 @@ It needs an access token, from `supabase login` or `SUPABASE_ACCESS_TOKEN`.
 That token can change auth settings on the live project, which is why this is
 a command someone runs on purpose rather than something CI does on a merge.
 
+## Opening the shop
+
+The shop takes no orders until the business can legally take money. That is
+one row in `shop_settings`, closed by migration `0016`. While it is closed the
+cart and checkout say orders open soon, and the database refuses any new order
+however it is sent.
+
+When the registration is done, in the hosted project's SQL editor:
+
+```sql
+update shop_settings set orders_open = true;
+```
+
+Checkout opens at once; the cart page catches up within a minute. Setting it
+back to `false` closes the shop again. Orders already placed are not affected
+either way.
+
 ## The administrator
 
 One person can see every order. That is a single row in `admins`, and it is
