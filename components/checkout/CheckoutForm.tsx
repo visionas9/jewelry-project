@@ -111,7 +111,12 @@ export function CheckoutForm() {
   return (
     <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_22rem]">
       <form action={formAction} className="flex flex-col gap-5" noValidate>
-        <h2 className="font-display text-xl">Teslimat bilgileri</h2>
+        <div>
+          <h2 className="font-display text-xl">Teslimat bilgileri</h2>
+          <p className="mt-1 text-sm text-muted">
+            Yalnızca Türkiye içine gönderim yapılmaktadır.
+          </p>
+        </div>
 
         <Field
           name="fullName"
