@@ -11,6 +11,7 @@ import {
 } from "@/app/checkout/actions";
 import { formatPrice } from "@/lib/format";
 import type { CartSummary } from "@/lib/orders";
+import { PROVINCES_SORTED } from "@/lib/provinces";
 import { useCartHydrated, useCartStore } from "@/lib/stores/cart";
 
 import { Spinner } from "@/components/ui/Spinner";
@@ -134,6 +135,7 @@ export function CheckoutForm() {
           <Field
             name="city"
             label="İl"
+            options={PROVINCES_SORTED}
             autoComplete="address-level1"
             defaultValue={failed?.values.city}
             error={failed?.fieldErrors.city}
@@ -264,6 +266,7 @@ function Field({
   hint,
   error,
   multiline,
+  options,
   ...input
 }: {
   name: string;
@@ -271,6 +274,8 @@ function Field({
   hint?: string;
   error?: string;
   multiline?: boolean;
+  // A fixed list turns the field into a dropdown, so nothing else can be typed.
+  options?: readonly string[];
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   const hintId = hint ? `${name}-hint` : null;
   const errorId = error ? `${name}-error` : null;
@@ -291,7 +296,40 @@ function Field({
         {label}
       </label>
 
-      {multiline ? (
+      {options ? (
+        // FIELD strips the native arrow, so the dropdown draws its own.
+        <div className="relative">
+          <select
+            defaultValue={input.defaultValue ?? ""}
+            autoComplete={input.autoComplete}
+            {...shared}
+            className={`${shared.className} pr-10`}
+          >
+            <option value="" disabled>
+              Seçin
+            </option>
+            {options.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+          <svg
+            aria-hidden
+            viewBox="0 0 20 20"
+            className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+          >
+            <path
+              d="M5 7.5 10 12.5 15 7.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      ) : multiline ? (
         <textarea rows={3} defaultValue={input.defaultValue} {...shared} />
       ) : (
         <input {...shared} {...input} />
