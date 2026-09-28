@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { cacheLife } from "next/cache";
 
 import { supabase } from "./supabase";
 
@@ -159,6 +160,24 @@ export function unpaidOrderCode(error: unknown): string | null {
 export const GENERIC_ORDER_ERROR =
   "Siparişiniz alınamadı. Lütfen birazdan tekrar deneyin.";
 
+export const ORDERS_CLOSED =
+  "Siparişlerimiz çok yakında açılıyor. Şimdilik bileklikleri inceleyebilir ve sepetinize ekleyebilirsiniz.";
+
+// Fresh every time — for the checkout page, where a stale answer would show a
+// form the database is about to refuse.
+export async function ordersOpen(): Promise<boolean> {
+  const { data } = await supabase.rpc("orders_open");
+  return data === true;
+}
+
+// For the cart, which is cached. Opening the shop is a one-off done by hand,
+// so a minute's delay before the cart notices is fine.
+export async function ordersOpenCached(): Promise<boolean> {
+  "use cache";
+  cacheLife("minutes");
+  return ordersOpen();
+}
+
 // place_order refuses in three ways, each with a stable code rather than a
 // sentence — see supabase/migrations/0005_orders.sql. This is the one place
 // those codes become Turkish.
@@ -188,6 +207,10 @@ export function turkishOrderError(error: unknown): string {
 
   if (message.includes("unknown_product")) {
     return "Sepetinizdeki bir ürün artık satışta değil. Lütfen sepetinizi güncelleyin.";
+  }
+
+  if (message.includes("orders_closed")) {
+    return ORDERS_CLOSED;
   }
 
   // Only reachable around the checkout form, which offers nothing else.
