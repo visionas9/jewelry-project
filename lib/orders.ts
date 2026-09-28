@@ -190,6 +190,11 @@ export function turkishOrderError(error: unknown): string {
     return "Sepetinizdeki bir ürün artık satışta değil. Lütfen sepetinizi güncelleyin.";
   }
 
+  // Only reachable around the checkout form, which offers nothing else.
+  if (message.includes("outside_turkey")) {
+    return "Yalnızca Türkiye içine gönderim yapılmaktadır. Lütfen Türkiye'deki bir adres ve telefon numarası girin.";
+  }
+
   if (message.includes("empty_order")) {
     return "Sepetiniz boş görünüyor.";
   }

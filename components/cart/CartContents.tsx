@@ -176,7 +176,7 @@ export function CartContents({ products }: { products: Product[] }) {
           </div>
 
           <p className="mt-2 text-xs leading-relaxed text-muted">
-            Kargo ücretsizdir.
+            Kargo ücretsizdir. Yalnızca Türkiye içine gönderim yapılmaktadır.
           </p>
 
           <Link
