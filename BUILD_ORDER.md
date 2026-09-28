@@ -118,7 +118,7 @@ Each of these was considered and left out on purpose. None is an oversight.
 - **Env vars live in Vercel.** `ORDER_EMAIL` must point at a real inbox — the
   fallback address can send but not receive.
 - **Granting admin is a deliberate one-off per environment** — one row in
-  `admins`, written with the service role key. See README.
+  `admins`, written with the service role key. See `docs/operations.md`.
 
 ---
 
