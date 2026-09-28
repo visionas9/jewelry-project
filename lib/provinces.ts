@@ -1,5 +1,8 @@
 // Turkey's 81 provinces, in plate-number order. The shop ships inside Turkey
 // only, so the checkout offers these and nothing else.
+//
+// supabase/migrations/0015_turkey_only_delivery.sql holds the same list, so the
+// database refuses what the form would. A test keeps the two in step.
 export const PROVINCES = [
   "Adana", "Adıyaman", "Afyonkarahisar", "Ağrı", "Amasya", "Ankara", "Antalya",
   "Artvin", "Aydın", "Balıkesir", "Bilecik", "Bingöl", "Bitlis", "Bolu",
