@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { CheckoutForm } from "@/components/checkout/CheckoutForm";
 import { CheckoutSteps } from "@/components/checkout/CheckoutSteps";
 import { requireMember } from "@/lib/auth-guard";
+import { ORDERS_CLOSED, ordersOpen } from "@/lib/orders";
 
 export const metadata: Metadata = {
   title: "Sipariş",
@@ -36,6 +37,15 @@ export default function CheckoutPage() {
 
 async function Guarded() {
   await requireMember("/checkout");
+
+  // The database refuses the order anyway; this spares filling in a form first.
+  if (!(await ordersOpen())) {
+    return (
+      <p className="mt-10 rounded-2xl border border-line bg-sand/50 px-5 py-4 text-sm leading-relaxed">
+        {ORDERS_CLOSED}
+      </p>
+    );
+  }
 
   return <CheckoutForm />;
 }

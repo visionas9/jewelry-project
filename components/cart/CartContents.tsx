@@ -10,7 +10,14 @@ import type { Product } from "@/types/product";
 // cart. Six products makes this the cheapest option — one cached query, no
 // waterfall, and prices are always current. With thousands, this would have to
 // become a lookup by the ids the cart actually holds.
-export function CartContents({ products }: { products: Product[] }) {
+export function CartContents({
+  products,
+  closedNotice,
+}: {
+  products: Product[];
+  // Set while the shop takes no orders.
+  closedNotice?: string;
+}) {
   const hydrated = useCartHydrated();
   const items = useCartStore((state) => state.items);
   const setQuantity = useCartStore((state) => state.setQuantity);
@@ -179,12 +186,20 @@ export function CartContents({ products }: { products: Product[] }) {
             Kargo ücretsizdir. Yalnızca Türkiye içine gönderim yapılmaktadır.
           </p>
 
-          <Link
-            href="/checkout"
-            className="mt-6 block w-full rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-clay"
-          >
-            Siparişi tamamla
-          </Link>
+          {/* While the shop is closed, no button to a checkout that would
+              only say so after a sign-in. */}
+          {closedNotice ? (
+            <p className="mt-6 rounded-2xl border border-line bg-cream px-4 py-3 text-sm leading-relaxed">
+              {closedNotice}
+            </p>
+          ) : (
+            <Link
+              href="/checkout"
+              className="mt-6 block w-full rounded-full bg-ink px-7 py-3 text-center text-sm tracking-wide text-cream transition-colors hover:bg-clay"
+            >
+              Siparişi tamamla
+            </Link>
+          )}
         </div>
       </aside>
     </div>
